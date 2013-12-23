@@ -1,0 +1,7 @@
+.grunt
+_SpecRunner.html
+/.DS_Store
+/.jhw-cache
+.DS_Store*
+reports
+node_modules
