@@ -1,7 +1,3 @@
-require(['app/vendor/liger.js'], function(){ 
-  require('app/vendor/liger.js');
-});
-
 describe('LIGER', function() {
 	it("#openPage", function(){
 		runs(function(){

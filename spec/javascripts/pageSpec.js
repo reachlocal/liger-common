@@ -1,7 +1,3 @@
-require(['app/vendor/page.js'], function(){ 
-  require('app/vendor/page.js');
-});
-
 describe('PAGE', function() {
 	describe("#initialize", function(){
 		beforeEach(function(){
