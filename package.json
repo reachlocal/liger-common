@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "devDependencies": {
     "grunt":                            "~0.4.1",
+		"grunt-cli":												"~0.1.11",
     "grunt-contrib-jshint":             "~0.6.3",
     "grunt-contrib-nodeunit":           "~0.2.0",
     "grunt-contrib-jasmine":            "~0.5.1",
     "grunt-jasmine-node":               "~0.1.0",
     "grunt-template-jasmine-requirejs": "~0.1.5",
     "grunt-template-jasmine-istanbul":  "~0.2.5"
-  }
+  },
+	"scripts": {
+		"test": "./node_modules/grunt-cli/bin/grunt --verbose"
+	}
 }
