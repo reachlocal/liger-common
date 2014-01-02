@@ -137,4 +137,4 @@ To run the tests you must have node.js installed.  If you have it installed skip
 Then run.
 
 		npm install
-		grunt -v 
+		npm test 
