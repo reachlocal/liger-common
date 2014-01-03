@@ -6,7 +6,7 @@ while not the perfect solution, is the best solution right now.  Liger allows we
 sets to write mobile applications using HTML, CSS and javascript, while maintaining much of user experience cues, users have
 come to expect.
 
-# CI          [![Build Status](https://api.travis-ci.org/reachlocal/liger-common.png)](https://api.travis-ci.org/reachlocal/liger-common.png)  [![Coverage Status](https://coveralls.io/repos/bikeonastick/liger-common/badge.png)](https://coveralls.io/r/bikeonastick/liger-common)
+# CI          [![Build Status](https://api.travis-ci.org/reachlocal/liger-common.png)](https://api.travis-ci.org/reachlocal/liger-common.png)
 
 # Differences between Liger and Cordova, Phonegap, etc.
 
@@ -139,16 +139,6 @@ To run the tests you must have node.js installed.  If you have it installed skip
 Then run.
 
 		npm install
-		grunt -v
+		npm test
 
-If you prefer terse output, run 
 
-    grunt
-
-If you run
-    
-    npm test
-    
-expect to see script errors (not test errors), as that runs extra scripts that attempt to upload our
-coverage stats to coveralls and you won't have the authority to upload
-results.

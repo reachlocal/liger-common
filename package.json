@@ -12,7 +12,7 @@
     "grunt-template-jasmine-istanbul":  "~0.2.5"
   },
   "scripts": {
-    "test": "./node_modules/grunt-cli/bin/grunt --verbose && cat reports/coverage/lcov/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "test": "./node_modules/grunt-cli/bin/grunt --verbose"
   },
   "dependencies": {
     "grunt-exec": "~0.4.3",
