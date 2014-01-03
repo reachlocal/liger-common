@@ -6,11 +6,11 @@ while not the perfect solution, is the best solution right now.  Liger allows we
 sets to write mobile applications using HTML, CSS and javascript, while maintaining much of user experience cues, users have
 come to expect.
 
-# CI          [![Build Status](https://api.travis-ci.org/reachlocal/liger-common.png)](https://api.travis-ci.org/reachlocal/liger-common.png)
+# CI          [![Build Status](https://api.travis-ci.org/reachlocal/liger-common.png)](https://travis-ci.org/reachlocal/liger-common)
 
 # Differences between Liger and Cordova, Phonegap, etc.
 
-Liger extends the Cordova Framework, but the thought process behind them is vastly different.  The Cordova framework lends
+Liger extends the Cordova Framework, but the thought protcess behind them is vastly different.  The Cordova framework lends
 itself nicely to bringing the growing trend of single page apps to the mobile device.  In a cordova app there is generally 
 a single web view that is loaded, and then all HTML updates are done within that webview.  
 
