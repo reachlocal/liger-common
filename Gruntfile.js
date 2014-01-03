@@ -4,11 +4,11 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     jasmine: {
       coverage: {
-        src:['app/vendor/*.js','app/assets/js/**/*.js'],
+        src:['app/vendor/liger.js','app/vendor/page.js','app/assets/js/**/*.js'],
         options: {
           specs: 'spec/**/*.js',
           keepRunner: true,
-          vendor: [],
+          vendor: ['app/vendor/cordova.js'],
           helpers: ['spec/javascripts/support/*.js', 'spec/javascripts/helpers/*.js'],
           junit: { 
             path: 'reports/xml',
@@ -31,6 +31,12 @@ module.exports = function(grunt) {
                 }
               },
               {
+                type: 'lcov', 
+                options: {
+                  dir: 'reports/coverage/lcov'
+                }
+              },
+              {
                 type: 'text-summary'
               }
             ],
@@ -44,7 +50,6 @@ module.exports = function(grunt) {
         }
       }
     },
-
   });
 
   grunt.loadNpmTasks('grunt-jasmine-node');
