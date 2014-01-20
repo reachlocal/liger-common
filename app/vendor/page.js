@@ -53,6 +53,7 @@ var PAGE = {
     
     refresh: function(user){},
     
+    onPageAppear: function(){},
 
     /**
      * Opens a new page.
