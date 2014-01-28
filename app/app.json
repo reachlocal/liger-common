@@ -1,15 +1,19 @@
 {
-  "appFormatVersion": 4,
-  "menu": [
-    [
-      {
-        "name": "Hello",
-        "page": "hello",
-        "iconText": "H",
-        "accessibilityLabel": "hello"
-      }
+  "appFormatVersion": 5,
+  "rootPage": {
+    "page": "appMenu",
+    "accessibilityLabel": "menu",
+    "args": [
+      [
+        {
+          "name": "Hello",
+          "page": "hello",
+          "title": "Hello World",
+          "accessibilityLabel": "hello"
+        }
+      ]
     ]
-  ],
+  },
   "appearance": {
     "iOS": {
       "barColor": "",
