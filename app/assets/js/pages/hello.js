@@ -34,7 +34,7 @@ var HELLO = {
 			}
 		}
 
-		console.log("HELLO.initailize succesful");
+		console.log("HELLO.initialize succesful");
 	}
 
 	// lots of other cool stuff
