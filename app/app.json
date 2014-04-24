@@ -1,5 +1,6 @@
 {
   "appFormatVersion": 5,
+  "notifications": false,
   "rootPage": {
     "page": "appMenu",
     "accessibilityLabel": "menu",
