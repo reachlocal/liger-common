@@ -139,7 +139,7 @@ describe('PAGE', function() {
 		it("should call LIGER.toolbar if PAGE.toolbarItems", function(){
 			runs(function(){
 		        spyOn(LIGER, 'toolbar');
-			PAGE.toolbarItems = [{},{}];
+				PAGE.toolbarItems = [{},{}];
 		        PAGE.addToolbar();
 		    });
 
@@ -167,11 +167,11 @@ describe('PAGE', function() {
 			it("should call LIGER.openPage", function(){
 				runs(function(){
 			        spyOn(LIGER, 'openPage');
-			        PAGE.openPage('test','test',{'foo':'bar'});
+			        PAGE.openPage('test','test',{'foo':'bar'}, {'bar':'foo'});
 			    });
 
 			    runs(function() {
-			        expect(LIGER.openPage).toHaveBeenCalledWith('test','test',{'foo':'bar'});
+			        expect(LIGER.openPage).toHaveBeenCalledWith('test','test',{'foo':'bar'}, {'bar':'foo'});
 			    });
 			});
 		});
@@ -232,11 +232,11 @@ describe('PAGE', function() {
 			it("should call LIGER.openDialog", function(){
 				runs(function(){
 			        spyOn(LIGER, 'openDialog');
-			        PAGE.openDialog('hello', {'foo':'bar'});
+			        PAGE.openDialog('hello', {'foo':'bar'}, {'bar':'foo'});
 			    });
 
 			    runs(function() {
-			        expect(LIGER.openDialog).toHaveBeenCalledWith('hello', {'foo':'bar'});
+			        expect(LIGER.openDialog).toHaveBeenCalledWith('hello', {'foo':'bar'}, {'bar':'foo'});
 			    });
 			});
 		});
@@ -245,11 +245,11 @@ describe('PAGE', function() {
 			it("should call LIGER.openDialogWithTitle", function(){
 				runs(function(){
 			        spyOn(LIGER, 'openDialogWithTitle');
-			        PAGE.openDialogWithTitle('hello', 'hello', {'foo':'bar'});
+			        PAGE.openDialogWithTitle('hello', 'hello', {'foo':'bar'}, {'bar':'foo'});
 			    });
 
 			    runs(function() {
-			        expect(LIGER.openDialogWithTitle).toHaveBeenCalledWith('hello', 'hello', {'foo':'bar'});
+			        expect(LIGER.openDialogWithTitle).toHaveBeenCalledWith('hello', 'hello', {'foo':'bar'}, {'bar':'foo'});
 			    });
 			});
 		});

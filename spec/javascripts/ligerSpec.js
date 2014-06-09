@@ -6,7 +6,7 @@ describe('LIGER', function() {
         });
 
         runs(function() {
-            expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", [ 'test', 'test', {"foo":"bar"}]);
+            expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", [ 'test', 'test', {"foo":"bar"}, {}]);
         });
 	});
 
@@ -100,7 +100,7 @@ describe('LIGER', function() {
         });
 
         runs(function() {
-            expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialog", ['test', {'foo':'bar'}]);
+            expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialog", ['test', {'foo':'bar'}, {}]);
         });
     });
 
@@ -111,7 +111,7 @@ describe('LIGER', function() {
         });
 
         runs(function() {
-            expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialogWithTitle", ['test', 'test', {'foo':'bar'}]);
+            expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialogWithTitle", ['test', 'test', {'foo':'bar'}, {}]);
         });
     });
 
