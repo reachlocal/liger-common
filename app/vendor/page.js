@@ -148,5 +148,7 @@ var PAGE = {
      * Indicates whether this web view can be refreshed by the user or not
      *
      */
-    canRefresh: function() { LIGER.userCanRefresh(PAGE.userCanRefresh); }
+    canRefresh: function() { LIGER.userCanRefresh(PAGE.userCanRefresh); },
+
+    headerButtonTapped: function(button) {}
 };
