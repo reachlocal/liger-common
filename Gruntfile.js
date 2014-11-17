@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     jasmine: {
       coverage: {
-        src: ['app/vendor/ligerbridge.js', 'app/vendor/page.js', 'app/assets/js/**/*.js'],
+        src: ['app/vendor/liger.js', 'app/vendor/page.js', 'app/assets/js/**/*.js'],
         options: {
           display: 'short',
           summary: true,
@@ -50,12 +50,10 @@ module.exports = function(grunt) {
 
     complexity: {
       generic: {
-        src: ['app/assets/js/**/*.js', 'app/vendor/page.js', 'app/vendor/ligerbridge.js'],
+        src: ['app/assets/js/**/*.js', 'app/vendor/page.js', 'app/vendor/liger.js'],
         exclude: [],
         options: {
           breakOnErrors: true,
-          //jsLintXML: 'report.xml',
-          // checkstyleXML: 'checkstyle.xml',
           errorsOnly: false,
           cyclomatic: [3, 7, 12],
           halstead: [8, 13, 20],
