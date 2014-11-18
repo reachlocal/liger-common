@@ -3,17 +3,6 @@ PAGE.hello = function(){
 	HELLO.initialize();
 }
 
-/* 
-*
-*  If this page will be receiving updates from a child window, you can setup the unique
-*  functionality by overwriting the PAGE.childUpdates() function here.
-*
-*/       
-PAGE.childUpdates = function(args){
-	// Maybe for instance you want to reintialize the page.
-	HELLO.initalize();
-}
-
 //  All of the code unique to the page's functionality
 var HELLO = {
 	initialize: function(){
