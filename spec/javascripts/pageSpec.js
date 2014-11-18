@@ -217,4 +217,30 @@ describe('PAGE', function() {
 			});
 		});
 	});
+
+	describe("empty callbacks", function(){
+		describe("#childUpdates", function(){
+			it("does nothing when called", function(){
+				PAGE.childUpdates({});
+			});
+		});
+
+		describe("#refresh", function(){
+			it("does nothing when called", function(){
+				PAGE.refresh();
+			});
+		});
+
+		describe("#onPageAppear", function(){
+			it("does nothing when called", function(){
+				PAGE.onPageAppear();
+			});
+		});
+
+		describe("#headerButtonTapped", function(){
+			it("does nothing when called", function(){
+				PAGE.headerButtonTapped("done");
+			});
+		});
+	});
 });
