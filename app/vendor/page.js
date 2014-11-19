@@ -51,10 +51,6 @@ var PAGE = {
     LIGER.userCanRefresh(this.userCanRefresh);
   },
 
-  refresh: function(user) {},
-
-  onPageAppear: function() {},
-
   /**
    * Opens a new page.
    * @iOS Pushes a UIViewController to a UINavigationController.
@@ -95,13 +91,6 @@ var PAGE = {
   updateParentPage: function(page, args) {LIGER.updateParentPage(page, args);},
 
   /**
-   * Called on the parent of a page that called updateParent
-   *
-   * @param args The arguments from updateParent
-   */
-  childUpdates: function(args) {},
-
-  /**
    * Opens a new page as a dialog
    * @iOS Presents a UIViewController.
    *
@@ -132,13 +121,6 @@ var PAGE = {
   closeDialog: function(args) {LIGER.closeDialog(args);},
 
   /**
-   * Called from a page in a dialog being closed.
-   *
-   * @param args json arguments from the dialog being closed.
-   */
-  closeDialogArguments: function(args) {PAGE.startThePageMan();},
-
-  /**
    * Sets the toolbar items.
    * @param items An array of hashes, one per item. They keys are icon: character, callback: javascript code in a string to be executed when the item is tapped.
    */
@@ -150,5 +132,26 @@ var PAGE = {
    */
   canRefresh: function() {LIGER.userCanRefresh(PAGE.userCanRefresh);},
 
-  headerButtonTapped: function(button) {}
+// Callbacks
+
+  /**
+   * Called from a page in a dialog being closed.
+   *
+   * @param args json arguments from the dialog being closed.
+   */
+  closeDialogArguments: function(args) {},
+
+   /**
+   * Called on the parent of a page that called updateParent
+   *
+   * @param args The arguments from updateParent
+   */
+  childUpdates: function(args) {},
+
+  onPageAppear: function() {},
+  pushNotificationTokenUpdated: function(token, type, error) {},
+  notificationArrived: function(payload, background) {},
+  handleAppOpenURL: function(url) {},
+  headerButtonTapped: function(button) {},
+  refresh: function(user) {},
 };

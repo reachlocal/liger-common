@@ -190,15 +190,6 @@ describe('PAGE', function() {
 			});
 		});
 
-		describe("#closeDialogArguments", function(){
-			it("should call LIGER.closeDialogArguments", function(){
-		        spyOn(PAGE, 'startThePageMan');
-		        PAGE.closeDialogArguments({'foo':'bar'});
-
-		        expect(PAGE.startThePageMan).toHaveBeenCalled();
-			});
-		});
-
 		describe("#toolbar", function(){
 			it("should call LIGER.toolbar", function(){
 		        spyOn(LIGER, 'toolbar');
@@ -219,15 +210,15 @@ describe('PAGE', function() {
 	});
 
 	describe("empty callbacks", function(){
+    describe("#closeDialogArguments", function(){
+      it("does nothing when called", function(){
+            PAGE.closeDialogArguments({'foo':'bar'});
+      });
+    });
+
 		describe("#childUpdates", function(){
 			it("does nothing when called", function(){
-				PAGE.childUpdates({});
-			});
-		});
-
-		describe("#refresh", function(){
-			it("does nothing when called", function(){
-				PAGE.refresh();
+				PAGE.childUpdates({bar:'baz'});
 			});
 		});
 
@@ -237,10 +228,34 @@ describe('PAGE', function() {
 			});
 		});
 
+    describe("#pushNotificationTokenUpdated", function(){
+      it("does nothing when called", function(){
+        PAGE.pushNotificationTokenUpdated('token', 'type', 'error');
+      });
+    });
+
+    describe("#notificationArrived", function(){
+      it("does nothing when called", function(){
+        PAGE.notificationArrived('payload', 'background');
+      });
+    });
+
+    describe("#handleAppOpenURL", function(){
+      it("does nothing when called", function(){
+        PAGE.handleAppOpenURL('url');
+      });
+    });
+
 		describe("#headerButtonTapped", function(){
 			it("does nothing when called", function(){
 				PAGE.headerButtonTapped("done");
 			});
 		});
+    describe("#refresh", function(){
+      it("does nothing when called", function(){
+        PAGE.refresh();
+      });
+    });
+
 	});
 });
