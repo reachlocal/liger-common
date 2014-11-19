@@ -1,76 +1,76 @@
 // Container for all custom liger cordova plugin functions
 var LIGER = {
-	openPage: function(title, page, args, options) {
-		if (options === undefined){
-			options = {};
-		}
+  openPage: function(title, page, args, options) {
+    if (options === undefined) {
+      options = {};
+    }
 
-		cordova.exec(null, null, "Liger", "openPage", [ title, page, args, options ]);
-	},
+    cordova.exec(null, null, "Liger", "openPage", [title, page, args, options]);
+  },
 
-	closePage: function() {
-		cordova.exec(null, null, "Liger", "closePage", []);
-	},
+  closePage: function() {
+    cordova.exec(null, null, "Liger", "closePage", []);
+  },
 
-	closeToPage: function(page) {
-		cordova.exec(null, null, "Liger", "closePage", [page]);
-	},
+  closeToPage: function(page) {
+    cordova.exec(null, null, "Liger", "closePage", [page]);
+  },
 
-	updateParent: function(args) {
-		cordova.exec(null, null, "Liger", "updateParent", [null, args]);
-	},
+  updateParent: function(args) {
+    cordova.exec(null, null, "Liger", "updateParent", [null, args]);
+  },
 
-	updateParentPage: function(page, args) {
-		cordova.exec(null, null, "Liger", "updateParent", [page, args]);
-	},
+  updateParentPage: function(page, args) {
+    cordova.exec(null, null, "Liger", "updateParent", [page, args]);
+  },
 
-	childUpdates: function(args){
-		PAGE.childUpdates(args);
-	},
-	
-	openPageArguments: function(args) {
-		PAGE.args = args;
-	},
+  childUpdates: function(args) {
+    PAGE.childUpdates(args);
+  },
 
-	getPageArgs: function(){
-		cordova.exec(
-			function(args){ 
-				PAGE.gotPageArgs(args);
-			}, 
-			function(error) { 
-				return false;
-			}, "Liger", "getPageArgs", []);
-	},
+  openPageArguments: function(args) {
+    PAGE.args = args;
+  },
 
-	openDialog: function(page, args, options){
-		if (options === undefined){
-			options = {};
-		}
+  getPageArgs: function() {
+    cordova.exec(
+    function(args) {
+      PAGE.gotPageArgs(args);
+    },
+    function(error) {
+      return false;
+    }, "Liger", "getPageArgs", []);
+  },
 
-		cordova.exec(null, null, "Liger", "openDialog", [ page, args, options ]);
-	},
+  openDialog: function(page, args, options) {
+    if (options === undefined) {
+      options = {};
+    }
 
-	openDialogWithTitle: function(title, page, args, options) {
-		if (options === undefined){
-			options = {};
-		}
-		
-		cordova.exec(null, null, "Liger", "openDialogWithTitle", [ title, page, args, options ]);
-	},
+    cordova.exec(null, null, "Liger", "openDialog", [page, args, options]);
+  },
 
-	closeDialog: function(args) {
-		cordova.exec(null, null, "Liger", "closeDialog", [args]);
-	},
+  openDialogWithTitle: function(title, page, args, options) {
+    if (options === undefined) {
+      options = {};
+    }
 
-	closeDialogArguments: function(args){
-        PAGE.closeDialogArguments(args);
-	},
-	
-	toolbar: function(items) {
-		cordova.exec(null, null, "Liger", "toolbar", [items]);
-	},
+    cordova.exec(null, null, "Liger", "openDialogWithTitle", [title, page, args, options]);
+  },
 
-	userCanRefresh: function(userCanRefresh) {
-		cordova.exec(null, null, "Liger", "userCanRefresh", [userCanRefresh]);
-	}
+  closeDialog: function(args) {
+    cordova.exec(null, null, "Liger", "closeDialog", [args]);
+  },
+
+  closeDialogArguments: function(args) {
+    PAGE.closeDialogArguments(args);
+  },
+
+  toolbar: function(items) {
+    cordova.exec(null, null, "Liger", "toolbar", [items]);
+  },
+
+  userCanRefresh: function(userCanRefresh) {
+    cordova.exec(null, null, "Liger", "userCanRefresh", [userCanRefresh]);
+  }
 };

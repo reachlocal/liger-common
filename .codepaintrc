@@ -1,0 +1,6 @@
+{
+  "space_after_control_statements": true,
+  "space_after_anonymous_functions": false,
+  "spaces_around_operators": true,
+  "spaces_in_brackets": false
+}

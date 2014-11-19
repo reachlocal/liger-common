@@ -62,12 +62,27 @@ module.exports = function(grunt) {
           broadcast: false
         }
       }
-    }
+    },
 
+	  codepainter: {
+		  dynamic: {
+			  options: {
+				  editorConfig: true,
+				  json: '.codepaintrc'
+			  },
+			  files: [{
+				  expand: true,
+				  cwd: 'app/',
+				  src: ['**/*.js', '!**/cordova.js'],
+				  dest: 'app/'
+			  }]
+		  }
+	  }
   });
 
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-complexity');
+  grunt.loadNpmTasks('grunt-codepainter');
   grunt.registerTask('default', ['jasmine', 'complexity']);
 
 };
