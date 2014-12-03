@@ -8,17 +8,11 @@ var PAGE = {
     this.page = page;
     this.bindEvents();
   },
-  // Bind Event Listeners
-  //
-  // Bind any events that are required on startup. Common events are:
-  // 'load', 'deviceready', 'offline', and 'online'.
+
   bindEvents: function() {
     document.addEventListener('deviceready', this.onDeviceReady, false);
   },
-  // deviceready Event Handler
-  //
-  // The scope of 'this' is the event. In order to call the 'pageInit'
-  // function, we must explicity call 'PAGE.pageInit(...);'
+
   onDeviceReady: function() {
     PAGE.pageInit('deviceready');
   },
@@ -41,6 +35,8 @@ var PAGE = {
     this.addToolbar();
   },
 
+  // API
+
   addToolbar: function() {
     if (PAGE.toolbarItems) {
       PAGE.toolbar(PAGE.toolbarItems);
@@ -51,107 +47,54 @@ var PAGE = {
     LIGER.userCanRefresh(this.userCanRefresh);
   },
 
-  /**
-   * Opens a new page.
-   * @iOS Pushes a UIViewController to a UINavigationController.
-   *
-   * @param title The title of the page (title in UINavigationBar on iOS)
-   * @param page The 'name' of the page to be open. Should not include html.
-   * @param args json that will be sent to page
-   */
-  openPage: function(title, page, args, options) {LIGER.openPage(title, page, args, options);},
+  openPage: function(title, page, args, options) {
+    LIGER.openPage(title, page, args, options);
+  },
 
-  /**
-   * Closes the currently open page.
-   *
-   * Can't close a top level page.
-   */
-  closePage: function() {LIGER.closePage();},
+  closePage: function() {
+    LIGER.closePage();
+  },
 
-  /**
-   * Closes all pages above 'page' in the navigation stack
-   *
-   * Can't close a top level page.
-   */
-  closeToPage: function(page) {LIGER.closeToPage(page);},
+  closeToPage: function(page) {
+    LIGER.closeToPage(page);
+  },
 
-  /**
-   * Sends arguments to the parent page.
-   *
-   * @param args Arguments you want to be sent to childUpdates on the parent page.
-   */
-  updateParent: function(args) {LIGER.updateParent(args);},
+  updateParent: function(args) {
+    LIGER.updateParent(args);
+  },
 
-  /**
-   * Sends arguments to the parent page.
-   *
-   * @param page The name of the first parent page (not including yoursef) you want to send the arguments to
-   * @param args Arguments you want to be sent to childUpdates on the parent page.
-   */
-  updateParentPage: function(page, args) {LIGER.updateParentPage(page, args);},
+  updateParentPage: function(page, args) {
+    LIGER.updateParentPage(page, args);
+  },
 
-  /**
-   * Opens a new page as a dialog
-   * @iOS Presents a UIViewController.
-   *
-   * @param page The 'name' of the page to be open. Should not include html.
-   * @param args json that will be sent to openPageArguments
-   */
-  openDialog: function(page, args, options) {LIGER.openDialog(page, args, options);},
+  openDialog: function(page, args, options) {
+    LIGER.openDialog(page, args, options);
+  },
 
-  /**
-   * Opens a new page as a dialog
-   * @iOS Presents a UIViewController.
-   *
-   * @param title The title of the page (title in UINavigationBar on iOS)
-   * @param page The 'name' of the page to be open. Should not include html.
-   * @param args json that will be sent to openPageArguments
-   */
-  openDialogWithTitle: function(title, page, args, options) {LIGER.openDialogWithTitle(title, page, args, options);},
+  openDialogWithTitle: function(title, page, args, options) {
+    LIGER.openDialogWithTitle(title, page, args, options);
+  },
 
-  /**
-   * Closes a page in an open dialog
-   * @iOS Dismisses the current UIViewController
-   *
-   * @param args json argument to send back to page that opened the dialog by calling closeDialogArguments
-   *
-   * Sending {"resetApp": true} will reset the app. Use when closing a signout page, advertiser selection page, or similar.
-   *
-   */
-  closeDialog: function(args) {LIGER.closeDialog(args);},
+  closeDialog: function(args) {
+    LIGER.closeDialog(args);
+  },
 
-  /**
-   * Sets the toolbar items.
-   * @param items An array of hashes, one per item. They keys are icon: character, callback: javascript code in a string to be executed when the item is tapped.
-   */
-  toolbar: function(items) {LIGER.toolbar(items);},
+  toolbar: function(items) {
+    LIGER.toolbar(items);
+  },
 
-  /**
-   * Indicates whether this web view can be refreshed by the user or not
-   *
-   */
-  canRefresh: function() {LIGER.userCanRefresh(PAGE.userCanRefresh);},
+  canRefresh: function() {
+    LIGER.userCanRefresh(PAGE.userCanRefresh);
+  },
 
-// Callbacks
+  // Callbacks
 
-  /**
-   * Called from a page in a dialog being closed.
-   *
-   * @param args json arguments from the dialog being closed.
-   */
-  closeDialogArguments: function(args) {},
-
-   /**
-   * Called on the parent of a page that called updateParent
-   *
-   * @param args The arguments from updateParent
-   */
   childUpdates: function(args) {},
-
-  onPageAppear: function() {},
-  pushNotificationTokenUpdated: function(token, type, error) {},
-  notificationArrived: function(payload, background) {},
+  closeDialogArguments: function(args) {},
   handleAppOpenURL: function(url) {},
   headerButtonTapped: function(button) {},
-  refresh: function(user) {},
+  notificationArrived: function(payload, background) {},
+  onPageAppear: function() {},
+  pushNotificationTokenUpdated: function(token, type, error) {},
+  refresh: function(user) {}
 };
