@@ -1,0 +1,22 @@
+{
+  "name": "ligermobile",
+  "version": "0.2.0",
+  "homepage": "http://reachlocal.github.io/liger/",
+  "authors": [
+    "John Gustafsson <john.gustafsson.liger@reachlocal.com>"
+  ],
+  "description": "Ligermobile javascript",
+  "main": ["app/vendor/page.js", "app/vendor/liger.js"],
+  "keywords": [
+    "ligermobile"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "spec"
+  ]
+}
