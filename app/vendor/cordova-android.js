@@ -1,5 +1,5 @@
-// Platform: ios
-// 3.6.3
+// Platform: android
+// 8ca0f3b2b87e0759c5236b91c80f18438544409c
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,7 @@
  under the License.
 */
 ;(function() {
-var CORDOVA_JS_BUILD_LABEL = '3.6.3';
+var PLATFORM_VERSION_BUILD_LABEL = '3.6.4';
 // file: src/scripts/require.js
 
 /*jshint -W079 */
@@ -175,7 +175,8 @@ function createEvent(type, data) {
 var cordova = {
     define:define,
     require:require,
-    version:CORDOVA_JS_BUILD_LABEL,
+    version:PLATFORM_VERSION_BUILD_LABEL,
+    platformVersion:PLATFORM_VERSION_BUILD_LABEL,
     platformId:platform.id,
     /**
      * Methods to add/remove your own addEventListener hijacking on document + window.
@@ -313,6 +314,51 @@ var cordova = {
 
 
 module.exports = cordova;
+
+});
+
+// file: src/android/android/nativeapiprovider.js
+define("cordova/android/nativeapiprovider", function(require, exports, module) {
+
+/**
+ * Exports the ExposedJsApi.java object if available, otherwise exports the PromptBasedNativeApi.
+ */
+
+var nativeApi = this._cordovaNative || require('cordova/android/promptbasednativeapi');
+var currentApi = nativeApi;
+
+module.exports = {
+    get: function() { return currentApi; },
+    setPreferPrompt: function(value) {
+        currentApi = value ? require('cordova/android/promptbasednativeapi') : nativeApi;
+    },
+    // Used only by tests.
+    set: function(value) {
+        currentApi = value;
+    }
+};
+
+});
+
+// file: src/android/android/promptbasednativeapi.js
+define("cordova/android/promptbasednativeapi", function(require, exports, module) {
+
+/**
+ * Implements the API of ExposedJsApi.java, but uses prompt() to communicate.
+ * This is used pre-JellyBean, where addJavascriptInterface() is disabled.
+ */
+
+module.exports = {
+    exec: function(bridgeSecret, service, action, callbackId, argsJson) {
+        return prompt(argsJson, 'gap:'+JSON.stringify([bridgeSecret, service, action, callbackId]));
+    },
+    setNativeToJsBridgeMode: function(bridgeSecret, value) {
+        prompt(value, 'gap_bridge_mode:' + bridgeSecret);
+    },
+    retrieveJsMessages: function(bridgeSecret, fromOnlineEvent) {
+        return prompt(+fromOnlineEvent, 'gap_poll:' + bridgeSecret);
+    }
+};
 
 });
 
@@ -803,302 +849,269 @@ module.exports = channel;
 
 });
 
-// file: src/ios/exec.js
+// file: src/android/exec.js
 define("cordova/exec", function(require, exports, module) {
 
 /**
- * Creates a gap bridge iframe used to notify the native code about queued
- * commands.
+ * Execute a cordova command.  It is up to the native side whether this action
+ * is synchronous or asynchronous.  The native side can return:
+ *      Synchronous: PluginResult object as a JSON string
+ *      Asynchronous: Empty string ""
+ * If async, the native side will cordova.callbackSuccess or cordova.callbackError,
+ * depending upon the result of the action.
+ *
+ * @param {Function} success    The success callback
+ * @param {Function} fail       The fail callback
+ * @param {String} service      The name of the service to use
+ * @param {String} action       Action to be run in cordova
+ * @param {String[]} [args]     Zero or more arguments to pass to the method
  */
 var cordova = require('cordova'),
-    channel = require('cordova/channel'),
+    nativeApiProvider = require('cordova/android/nativeapiprovider'),
     utils = require('cordova/utils'),
     base64 = require('cordova/base64'),
-    // XHR mode does not work on iOS 4.2.
-    // XHR mode's main advantage is working around a bug in -webkit-scroll, which
-    // doesn't exist only on iOS 5.x devices.
-    // IFRAME_NAV is the fastest.
-    // IFRAME_HASH could be made to enable synchronous bridge calls if we wanted this feature.
+    channel = require('cordova/channel'),
     jsToNativeModes = {
-        IFRAME_NAV: 0,
-        XHR_NO_PAYLOAD: 1,
-        XHR_WITH_PAYLOAD: 2,
-        XHR_OPTIONAL_PAYLOAD: 3,
-        IFRAME_HASH_NO_PAYLOAD: 4,
-        // Bundling the payload turns out to be slower. Probably since it has to be URI encoded / decoded.
-        IFRAME_HASH_WITH_PAYLOAD: 5,
-        WK_WEBVIEW_BINDING: 6
+        PROMPT: 0,
+        JS_OBJECT: 1
     },
-    bridgeMode,
-    execIframe,
-    execHashIframe,
-    hashToggle = 1,
-    execXhr,
-    requestCount = 0,
-    vcHeaderValue = null,
-    commandQueue = [], // Contains pending JS->Native messages.
-    isInContextOfEvalJs = 0;
+    nativeToJsModes = {
+        // Polls for messages using the JS->Native bridge.
+        POLLING: 0,
+        // For LOAD_URL to be viable, it would need to have a work-around for
+        // the bug where the soft-keyboard gets dismissed when a message is sent.
+        LOAD_URL: 1,
+        // For the ONLINE_EVENT to be viable, it would need to intercept all event
+        // listeners (both through addEventListener and window.ononline) as well
+        // as set the navigator property itself.
+        ONLINE_EVENT: 2,
+        // Uses reflection to access private APIs of the WebView that can send JS
+        // to be executed.
+        // Requires Android 3.2.4 or above.
+        PRIVATE_API: 3
+    },
+    jsToNativeBridgeMode,  // Set lazily.
+    nativeToJsBridgeMode = nativeToJsModes.ONLINE_EVENT,
+    pollEnabled = false,
+    messagesFromNative = [],
+    bridgeSecret = -1;
 
-function createExecIframe() {
-    var iframe = document.createElement("iframe");
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    return iframe;
-}
-
-function createHashIframe() {
-    var ret = createExecIframe();
-    // Hash changes don't work on about:blank, so switch it to file:///.
-    ret.contentWindow.history.replaceState(null, null, 'file:///#');
-    return ret;
-}
-
-function shouldBundleCommandJson() {
-    if (bridgeMode === jsToNativeModes.XHR_WITH_PAYLOAD) {
-        return true;
+function androidExec(success, fail, service, action, args) {
+    if (bridgeSecret < 0) {
+        // If we ever catch this firing, we'll need to queue up exec()s
+        // and fire them once we get a secret. For now, I don't think
+        // it's possible for exec() to be called since plugins are parsed but
+        // not run until until after onNativeReady.
+        throw new Error('exec() called without bridgeSecret');
     }
-    if (bridgeMode === jsToNativeModes.XHR_OPTIONAL_PAYLOAD) {
-        var payloadLength = 0;
-        for (var i = 0; i < commandQueue.length; ++i) {
-            payloadLength += commandQueue[i].length;
+    // Set default bridge modes if they have not already been set.
+    // By default, we use the failsafe, since addJavascriptInterface breaks too often
+    if (jsToNativeBridgeMode === undefined) {
+        androidExec.setJsToNativeBridgeMode(jsToNativeModes.JS_OBJECT);
+    }
+
+    // Process any ArrayBuffers in the args into a string.
+    for (var i = 0; i < args.length; i++) {
+        if (utils.typeName(args[i]) == 'ArrayBuffer') {
+            args[i] = base64.fromArrayBuffer(args[i]);
         }
-        // The value here was determined using the benchmark within CordovaLibApp on an iPad 3.
-        return payloadLength < 4500;
     }
-    return false;
+
+    var callbackId = service + cordova.callbackId++,
+        argsJson = JSON.stringify(args);
+
+    if (success || fail) {
+        cordova.callbacks[callbackId] = {success:success, fail:fail};
+    }
+
+    var messages = nativeApiProvider.get().exec(bridgeSecret, service, action, callbackId, argsJson);
+    // If argsJson was received by Java as null, try again with the PROMPT bridge mode.
+    // This happens in rare circumstances, such as when certain Unicode characters are passed over the bridge on a Galaxy S2.  See CB-2666.
+    if (jsToNativeBridgeMode == jsToNativeModes.JS_OBJECT && messages === "@Null arguments.") {
+        androidExec.setJsToNativeBridgeMode(jsToNativeModes.PROMPT);
+        androidExec(success, fail, service, action, args);
+        androidExec.setJsToNativeBridgeMode(jsToNativeModes.JS_OBJECT);
+        return;
+    } else {
+        androidExec.processMessages(messages, true);
+    }
 }
 
-function massageArgsJsToNative(args) {
-    if (!args || utils.typeName(args) != 'Array') {
-        return args;
-    }
-    var ret = [];
-    args.forEach(function(arg, i) {
-        if (utils.typeName(arg) == 'ArrayBuffer') {
-            ret.push({
-                'CDVType': 'ArrayBuffer',
-                'data': base64.fromArrayBuffer(arg)
-            });
-        } else {
-            ret.push(arg);
-        }
-    });
-    return ret;
+androidExec.init = function() {
+    bridgeSecret = +prompt('', 'gap_init:' + nativeToJsBridgeMode);
+    channel.onNativeReady.fire();
+};
+
+function pollOnceFromOnlineEvent() {
+    pollOnce(true);
 }
 
-function massageMessageNativeToJs(message) {
-    if (message.CDVType == 'ArrayBuffer') {
-        var stringToArrayBuffer = function(str) {
-            var ret = new Uint8Array(str.length);
-            for (var i = 0; i < str.length; i++) {
-                ret[i] = str.charCodeAt(i);
+function pollOnce(opt_fromOnlineEvent) {
+    if (bridgeSecret < 0) {
+        // This can happen when the NativeToJsMessageQueue resets the online state on page transitions.
+        // We know there's nothing to retrieve, so no need to poll.
+        return;
+    }
+    var msg = nativeApiProvider.get().retrieveJsMessages(bridgeSecret, !!opt_fromOnlineEvent);
+    androidExec.processMessages(msg);
+}
+
+function pollingTimerFunc() {
+    if (pollEnabled) {
+        pollOnce();
+        setTimeout(pollingTimerFunc, 50);
+    }
+}
+
+function hookOnlineApis() {
+    function proxyEvent(e) {
+        cordova.fireWindowEvent(e.type);
+    }
+    // The network module takes care of firing online and offline events.
+    // It currently fires them only on document though, so we bridge them
+    // to window here (while first listening for exec()-releated online/offline
+    // events).
+    window.addEventListener('online', pollOnceFromOnlineEvent, false);
+    window.addEventListener('offline', pollOnceFromOnlineEvent, false);
+    cordova.addWindowEventHandler('online');
+    cordova.addWindowEventHandler('offline');
+    document.addEventListener('online', proxyEvent, false);
+    document.addEventListener('offline', proxyEvent, false);
+}
+
+hookOnlineApis();
+
+androidExec.jsToNativeModes = jsToNativeModes;
+androidExec.nativeToJsModes = nativeToJsModes;
+
+androidExec.setJsToNativeBridgeMode = function(mode) {
+    if (mode == jsToNativeModes.JS_OBJECT && !window._cordovaNative) {
+        mode = jsToNativeModes.PROMPT;
+    }
+    nativeApiProvider.setPreferPrompt(mode == jsToNativeModes.PROMPT);
+    jsToNativeBridgeMode = mode;
+};
+
+androidExec.setNativeToJsBridgeMode = function(mode) {
+    if (mode == nativeToJsBridgeMode) {
+        return;
+    }
+    if (nativeToJsBridgeMode == nativeToJsModes.POLLING) {
+        pollEnabled = false;
+    }
+
+    nativeToJsBridgeMode = mode;
+    // Tell the native side to switch modes.
+    // Otherwise, it will be set by androidExec.init()
+    if (bridgeSecret >= 0) {
+        nativeApiProvider.get().setNativeToJsBridgeMode(bridgeSecret, mode);
+    }
+
+    if (mode == nativeToJsModes.POLLING) {
+        pollEnabled = true;
+        setTimeout(pollingTimerFunc, 1);
+    }
+};
+
+// Processes a single message, as encoded by NativeToJsMessageQueue.java.
+function processMessage(message) {
+    try {
+        var firstChar = message.charAt(0);
+        if (firstChar == 'J') {
+            eval(message.slice(1));
+        } else if (firstChar == 'S' || firstChar == 'F') {
+            var success = firstChar == 'S';
+            var keepCallback = message.charAt(1) == '1';
+            var spaceIdx = message.indexOf(' ', 2);
+            var status = +message.slice(2, spaceIdx);
+            var nextSpaceIdx = message.indexOf(' ', spaceIdx + 1);
+            var callbackId = message.slice(spaceIdx + 1, nextSpaceIdx);
+            var payloadKind = message.charAt(nextSpaceIdx + 1);
+            var payload;
+            if (payloadKind == 's') {
+                payload = message.slice(nextSpaceIdx + 2);
+            } else if (payloadKind == 't') {
+                payload = true;
+            } else if (payloadKind == 'f') {
+                payload = false;
+            } else if (payloadKind == 'N') {
+                payload = null;
+            } else if (payloadKind == 'n') {
+                payload = +message.slice(nextSpaceIdx + 2);
+            } else if (payloadKind == 'A') {
+                var data = message.slice(nextSpaceIdx + 2);
+                var bytes = window.atob(data);
+                var arraybuffer = new Uint8Array(bytes.length);
+                for (var i = 0; i < bytes.length; i++) {
+                    arraybuffer[i] = bytes.charCodeAt(i);
+                }
+                payload = arraybuffer.buffer;
+            } else if (payloadKind == 'S') {
+                payload = window.atob(message.slice(nextSpaceIdx + 2));
+            } else {
+                payload = JSON.parse(message.slice(nextSpaceIdx + 1));
             }
-            return ret.buffer;
-        };
-        var base64ToArrayBuffer = function(b64) {
-            return stringToArrayBuffer(atob(b64));
-        };
-        message = base64ToArrayBuffer(message.data);
+            cordova.callbackFromNative(callbackId, success, status, [payload], keepCallback);
+        } else {
+            console.log("processMessage failed: invalid message: " + JSON.stringify(message));
+        }
+    } catch (e) {
+        console.log("processMessage failed: Error: " + e);
+        console.log("processMessage failed: Stack: " + e.stack);
+        console.log("processMessage failed: Message: " + message);
+    }
+}
+
+var isProcessing = false;
+
+// This is called from the NativeToJsMessageQueue.java.
+androidExec.processMessages = function(messages, opt_useTimeout) {
+    if (messages) {
+        messagesFromNative.push(messages);
+    }
+    // Check for the reentrant case.
+    if (isProcessing) {
+        return;
+    }
+    if (opt_useTimeout) {
+        window.setTimeout(androidExec.processMessages, 0);
+        return;
+    }
+    isProcessing = true;
+    try {
+        // TODO: add setImmediate polyfill and process only one message at a time.
+        while (messagesFromNative.length) {
+            var msg = popMessageFromQueue();
+            // The Java side can send a * message to indicate that it
+            // still has messages waiting to be retrieved.
+            if (msg == '*' && messagesFromNative.length === 0) {
+                setTimeout(pollOnce, 0);
+                return;
+            }
+            processMessage(msg);
+        }
+    } finally {
+        isProcessing = false;
+    }
+};
+
+function popMessageFromQueue() {
+    var messageBatch = messagesFromNative.shift();
+    if (messageBatch == '*') {
+        return '*';
+    }
+
+    var spaceIdx = messageBatch.indexOf(' ');
+    var msgLen = +messageBatch.slice(0, spaceIdx);
+    var message = messageBatch.substr(spaceIdx + 1, msgLen);
+    messageBatch = messageBatch.slice(spaceIdx + msgLen + 1);
+    if (messageBatch) {
+        messagesFromNative.unshift(messageBatch);
     }
     return message;
 }
 
-function convertMessageToArgsNativeToJs(message) {
-    var args = [];
-    if (!message || !message.hasOwnProperty('CDVType')) {
-        args.push(message);
-    } else if (message.CDVType == 'MultiPart') {
-        message.messages.forEach(function(e) {
-            args.push(massageMessageNativeToJs(e));
-        });
-    } else {
-        args.push(massageMessageNativeToJs(message));
-    }
-    return args;
-}
-
-function iOSExec() {
-    // Use XHR for iOS 5 to work around a bug in -webkit-scroll.
-    // Use IFRAME_NAV elsewhere since it's faster and XHR bridge
-    // seems to have bugs in newer OS's (CB-3900, CB-3359, CB-5457, CB-4970, CB-4998, CB-5134)
-    if (bridgeMode === undefined) {
-        if (navigator.userAgent) {
-            bridgeMode = navigator.userAgent.indexOf(' 5_') == -1 ? jsToNativeModes.IFRAME_NAV: jsToNativeModes.XHR_NO_PAYLOAD;
-        } else {
-            bridgeMode = jsToNativeModes.IFRAME_NAV;
-        }
-    }
-
-    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.cordova && window.webkit.messageHandlers.cordova.postMessage) {
-        bridgeMode = jsToNativeModes.WK_WEBVIEW_BINDING;
-    }
-
-    var successCallback, failCallback, service, action, actionArgs, splitCommand;
-    var callbackId = null;
-    if (typeof arguments[0] !== "string") {
-        // FORMAT ONE
-        successCallback = arguments[0];
-        failCallback = arguments[1];
-        service = arguments[2];
-        action = arguments[3];
-        actionArgs = arguments[4];
-
-        // Since we need to maintain backwards compatibility, we have to pass
-        // an invalid callbackId even if no callback was provided since plugins
-        // will be expecting it. The Cordova.exec() implementation allocates
-        // an invalid callbackId and passes it even if no callbacks were given.
-        callbackId = 'INVALID';
-    } else {
-        // FORMAT TWO, REMOVED
-        try {
-            splitCommand = arguments[0].split(".");
-            action = splitCommand.pop();
-            service = splitCommand.join(".");
-            actionArgs = Array.prototype.splice.call(arguments, 1);
-
-            console.log('The old format of this exec call has been removed (deprecated since 2.1). Change to: ' +
-                       "cordova.exec(null, null, \"" + service + "\", \"" + action + "\"," + JSON.stringify(actionArgs) + ");"
-            );
-            return;
-        } catch (e) {}
-    }
-
-    // If actionArgs is not provided, default to an empty array
-    actionArgs = actionArgs || [];
-
-    // Register the callbacks and add the callbackId to the positional
-    // arguments if given.
-    if (successCallback || failCallback) {
-        callbackId = service + cordova.callbackId++;
-        cordova.callbacks[callbackId] =
-            {success:successCallback, fail:failCallback};
-    }
-
-    actionArgs = massageArgsJsToNative(actionArgs);
-
-    var command = [callbackId, service, action, actionArgs];
-
-    // Stringify and queue the command. We stringify to command now to
-    // effectively clone the command arguments in case they are mutated before
-    // the command is executed.
-    commandQueue.push(JSON.stringify(command));
-    
-    if (bridgeMode === jsToNativeModes.WK_WEBVIEW_BINDING) {
-        window.webkit.messageHandlers.cordova.postMessage(command);
-    } else {
-        // If we're in the context of a stringByEvaluatingJavaScriptFromString call,
-        // then the queue will be flushed when it returns; no need for a poke.
-        // Also, if there is already a command in the queue, then we've already
-        // poked the native side, so there is no reason to do so again.
-        if (!isInContextOfEvalJs && commandQueue.length == 1) {
-            switch (bridgeMode) {
-            case jsToNativeModes.XHR_NO_PAYLOAD:
-            case jsToNativeModes.XHR_WITH_PAYLOAD:
-            case jsToNativeModes.XHR_OPTIONAL_PAYLOAD:
-                pokeNativeViaXhr();
-                break;
-            default: // iframe-based.
-                pokeNativeViaIframe();
-            }
-        }
-    }
-}
-
-function pokeNativeViaXhr() {
-    // This prevents sending an XHR when there is already one being sent.
-    // This should happen only in rare circumstances (refer to unit tests).
-    if (execXhr && execXhr.readyState != 4) {
-        execXhr = null;
-    }
-    // Re-using the XHR improves exec() performance by about 10%.
-    execXhr = execXhr || new XMLHttpRequest();
-    // Changing this to a GET will make the XHR reach the URIProtocol on 4.2.
-    // For some reason it still doesn't work though...
-    // Add a timestamp to the query param to prevent caching.
-    execXhr.open('HEAD', "/!gap_exec?" + (+new Date()), true);
-    if (!vcHeaderValue) {
-        vcHeaderValue = /.*\((.*)\)/.exec(navigator.userAgent)[1];
-    }
-    execXhr.setRequestHeader('vc', vcHeaderValue);
-    execXhr.setRequestHeader('rc', ++requestCount);
-    if (shouldBundleCommandJson()) {
-        execXhr.setRequestHeader('cmds', iOSExec.nativeFetchMessages());
-    }
-    execXhr.send(null);
-}
-
-function pokeNativeViaIframe() {
-    // CB-5488 - Don't attempt to create iframe before document.body is available.
-    if (!document.body) {
-        setTimeout(pokeNativeViaIframe);
-        return;
-    }
-    if (bridgeMode === jsToNativeModes.IFRAME_HASH_NO_PAYLOAD || bridgeMode === jsToNativeModes.IFRAME_HASH_WITH_PAYLOAD) {
-        execHashIframe = execHashIframe || createHashIframe();
-        // Check if they've removed it from the DOM, and put it back if so.
-        if (!execHashIframe.contentWindow) {
-            execHashIframe = createHashIframe();
-        }
-        // The delegate method is called only when the hash changes, so toggle it back and forth.
-        hashToggle = hashToggle ^ 3;
-        var hashValue = '%0' + hashToggle;
-        if (bridgeMode === jsToNativeModes.IFRAME_HASH_WITH_PAYLOAD) {
-            hashValue += iOSExec.nativeFetchMessages();
-        }
-        execHashIframe.contentWindow.location.hash = hashValue;
-    } else {
-        execIframe = execIframe || createExecIframe();
-        // Check if they've removed it from the DOM, and put it back if so.
-        if (!execIframe.contentWindow) {
-            execIframe = createExecIframe();
-        }
-        execIframe.src = "gap://ready";
-    }
-}
-
-iOSExec.jsToNativeModes = jsToNativeModes;
-
-iOSExec.setJsToNativeBridgeMode = function(mode) {
-    // Remove the iFrame since it may be no longer required, and its existence
-    // can trigger browser bugs.
-    // https://issues.apache.org/jira/browse/CB-593
-    if (execIframe) {
-        execIframe.parentNode.removeChild(execIframe);
-        execIframe = null;
-    }
-    bridgeMode = mode;
-};
-
-iOSExec.nativeFetchMessages = function() {
-    // Each entry in commandQueue is a JSON string already.
-    if (!commandQueue.length) {
-        return '';
-    }
-    var json = '[' + commandQueue.join(',') + ']';
-    commandQueue.length = 0;
-    return json;
-};
-
-iOSExec.nativeCallback = function(callbackId, status, message, keepCallback) {
-    return iOSExec.nativeEvalAndFetch(function() {
-        var success = status === 0 || status === 1;
-        var args = convertMessageToArgsNativeToJs(message);
-        cordova.callbackFromNative(callbackId, success, status, args, keepCallback);
-    });
-};
-
-iOSExec.nativeEvalAndFetch = function(func) {
-    // This shouldn't be nested, but better to be safe.
-    isInContextOfEvalJs++;
-    try {
-        func();
-        return iOSExec.nativeFetchMessages();
-    } finally {
-        isInContextOfEvalJs--;
-    }
-};
-
-module.exports = iOSExec;
+module.exports = androidExec;
 
 });
 
@@ -1171,6 +1184,16 @@ function replaceNavigator(origNavigator) {
         for (var key in origNavigator) {
             if (typeof origNavigator[key] == 'function') {
                 newNavigator[key] = origNavigator[key].bind(origNavigator);
+            } else {
+                (function(k) {
+                        Object.defineProperty(newNavigator, k, {
+                            get: function() {
+                                return origNavigator[k];
+                            },
+                            configurable: true,
+                            enumerable: true
+                        });
+                    })(key);
             }
         }
     }
@@ -1290,6 +1313,16 @@ function replaceNavigator(origNavigator) {
         for (var key in origNavigator) {
             if (typeof origNavigator[key] == 'function') {
                 newNavigator[key] = origNavigator[key].bind(origNavigator);
+            } else {
+                (function(k) {
+                        Object.defineProperty(newNavigator, k, {
+                            get: function() {
+                                return origNavigator[k];
+                            },
+                            configurable: true,
+                            enumerable: true
+                        });
+                    })(key);
             }
         }
     }
@@ -1456,16 +1489,145 @@ exports.reset();
 
 });
 
-// file: src/ios/platform.js
+// file: src/android/platform.js
 define("cordova/platform", function(require, exports, module) {
 
 module.exports = {
-    id: 'ios',
+    id: 'android',
     bootstrap: function() {
-        require('cordova/channel').onNativeReady.fire();
+        var channel = require('cordova/channel'),
+            cordova = require('cordova'),
+            exec = require('cordova/exec'),
+            modulemapper = require('cordova/modulemapper');
+
+        // Get the shared secret needed to use the bridge.
+        exec.init();
+
+        // TODO: Extract this as a proper plugin.
+        modulemapper.clobbers('cordova/plugin/android/app', 'navigator.app');
+
+        // Inject a listener for the backbutton on the document.
+        var backButtonChannel = cordova.addDocumentEventHandler('backbutton');
+        backButtonChannel.onHasSubscribersChange = function() {
+            // If we just attached the first handler or detached the last handler,
+            // let native know we need to override the back button.
+            exec(null, null, "App", "overrideBackbutton", [this.numHandlers == 1]);
+        };
+
+        // Add hardware MENU and SEARCH button handlers
+        cordova.addDocumentEventHandler('menubutton');
+        cordova.addDocumentEventHandler('searchbutton');
+
+        function bindButtonChannel(buttonName) {
+            // generic button bind used for volumeup/volumedown buttons
+            var volumeButtonChannel = cordova.addDocumentEventHandler(buttonName + 'button');
+            volumeButtonChannel.onHasSubscribersChange = function() {
+                exec(null, null, "App", "overrideButton", [buttonName, this.numHandlers == 1]);
+            };
+        }
+        // Inject a listener for the volume buttons on the document.
+        bindButtonChannel('volumeup');
+        bindButtonChannel('volumedown');
+
+        // Let native code know we are all done on the JS side.
+        // Native code will then un-hide the WebView.
+        channel.onCordovaReady.subscribe(function() {
+            exec(null, null, "App", "show", []);
+        });
     }
 };
 
+});
+
+// file: src/android/plugin/android/app.js
+define("cordova/plugin/android/app", function(require, exports, module) {
+
+var exec = require('cordova/exec');
+
+module.exports = {
+    /**
+    * Clear the resource cache.
+    */
+    clearCache:function() {
+        exec(null, null, "App", "clearCache", []);
+    },
+
+    /**
+    * Load the url into the webview or into new browser instance.
+    *
+    * @param url           The URL to load
+    * @param props         Properties that can be passed in to the activity:
+    *      wait: int                           => wait msec before loading URL
+    *      loadingDialog: "Title,Message"      => display a native loading dialog
+    *      loadUrlTimeoutValue: int            => time in msec to wait before triggering a timeout error
+    *      clearHistory: boolean              => clear webview history (default=false)
+    *      openExternal: boolean              => open in a new browser (default=false)
+    *
+    * Example:
+    *      navigator.app.loadUrl("http://server/myapp/index.html", {wait:2000, loadingDialog:"Wait,Loading App", loadUrlTimeoutValue: 60000});
+    */
+    loadUrl:function(url, props) {
+        exec(null, null, "App", "loadUrl", [url, props]);
+    },
+
+    /**
+    * Cancel loadUrl that is waiting to be loaded.
+    */
+    cancelLoadUrl:function() {
+        exec(null, null, "App", "cancelLoadUrl", []);
+    },
+
+    /**
+    * Clear web history in this web view.
+    * Instead of BACK button loading the previous web page, it will exit the app.
+    */
+    clearHistory:function() {
+        exec(null, null, "App", "clearHistory", []);
+    },
+
+    /**
+    * Go to previous page displayed.
+    * This is the same as pressing the backbutton on Android device.
+    */
+    backHistory:function() {
+        exec(null, null, "App", "backHistory", []);
+    },
+
+    /**
+    * Override the default behavior of the Android back button.
+    * If overridden, when the back button is pressed, the "backKeyDown" JavaScript event will be fired.
+    *
+    * Note: The user should not have to call this method.  Instead, when the user
+    *       registers for the "backbutton" event, this is automatically done.
+    *
+    * @param override        T=override, F=cancel override
+    */
+    overrideBackbutton:function(override) {
+        exec(null, null, "App", "overrideBackbutton", [override]);
+    },
+
+    /**
+    * Override the default behavior of the Android volume button.
+    * If overridden, when the volume button is pressed, the "volume[up|down]button"
+    * JavaScript event will be fired.
+    *
+    * Note: The user should not have to call this method.  Instead, when the user
+    *       registers for the "volume[up|down]button" event, this is automatically done.
+    *
+    * @param button          volumeup, volumedown
+    * @param override        T=override, F=cancel override
+    */
+    overrideButton:function(button, override) {
+        exec(null, null, "App", "overrideButton", [button, override]);
+    },
+
+    /**
+    * Exit and terminate the application.
+    */
+    exitApp:function() {
+        return exec(null, null, "App", "exitApp", []);
+    }
+};
 
 });
 

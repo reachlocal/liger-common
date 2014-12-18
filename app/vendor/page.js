@@ -2,7 +2,6 @@ var PAGE = {
   page: null,
   args: null,
   toolbarItems: null,
-  userCanRefresh: false,
 
   initialize: function(page) {
     this.page = page;
@@ -43,10 +42,6 @@ var PAGE = {
     }
   },
 
-  setupRefresh: function() {
-    LIGER.userCanRefresh(this.userCanRefresh);
-  },
-
   openPage: function(title, page, args, options) {
     LIGER.openPage(title, page, args, options);
   },
@@ -83,10 +78,6 @@ var PAGE = {
     LIGER.toolbar(items);
   },
 
-  canRefresh: function() {
-    LIGER.userCanRefresh(PAGE.userCanRefresh);
-  },
-
   // Callbacks
 
   childUpdates: function(args) {},
@@ -95,6 +86,5 @@ var PAGE = {
   headerButtonTapped: function(button) {},
   notificationArrived: function(payload, background) {},
   onPageAppear: function() {},
-  pushNotificationTokenUpdated: function(token, type, error) {},
-  refresh: function(user) {}
+  pushNotificationTokenUpdated: function(token, type, error) {}
 };
