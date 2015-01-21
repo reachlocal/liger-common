@@ -84,7 +84,7 @@ var PAGE = {
   closeDialogArguments: function(args) {},
   handleAppOpenURL: function(url) {},
   headerButtonTapped: function(button) {},
-  notificationArrived: function(payload, background) {},
+  notificationArrived: function(payload, state) {},
   onPageAppear: function() {},
   pushNotificationTokenUpdated: function(token, type, error) {}
 };
