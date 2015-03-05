@@ -1,5 +1,5 @@
-define(['./cordovaBridge'], function() {
-  var bridge = require('cordovaBridge');
+define(['./cordovabridge'], function() {
+  var bridge = require('cordovabridge');
 
   var PAGE = {
     page: null,
