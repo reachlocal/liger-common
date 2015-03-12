@@ -1,6 +1,7 @@
-define(['vendor/cordova.js'], function() {
-  // Container for all custom liger dingo plugin functions
+var iOS = /(iPad|iPhone|iPod)/g.test( navigator.userAgent );
+var cordova = iOS ? 'vendor/ios/cordova.js' : 'vendor/android/cordova.js';
 
+define([cordova], function() {
   var exec = cordova.require('cordova/exec');
   return {
     PAGE: null,
