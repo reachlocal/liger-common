@@ -1,12 +1,12 @@
 {
   "name": "ligermobile",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "homepage": "http://reachlocal.github.io/liger/",
   "authors": [
     "John Gustafsson <john.gustafsson.liger@reachlocal.com>"
   ],
   "description": "Ligermobile javascript",
-  "main": ["app/vendor/page.js", "app/vendor/liger.js"],
+  "main": ["app/vendor/ligermobile.js", "app/vendor/cordovabridge.js", "app/vendor/ios/cordova.js", "app/vendor/ios/cordova_plugins.js", "app/vendor/android/cordova.js", "app/vendor/android/cordova_plugins.js"],
   "keywords": [
     "ligermobile"
   ],
