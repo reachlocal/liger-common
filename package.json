@@ -6,20 +6,21 @@
     "url": "git://github.com/reachlocal/liger-common.git"
   },
   "devDependencies": {
-    "grunt":                            "~0.4.5",
-    "grunt-cli":                        "~0.1.13",
-    "grunt-contrib-jshint":             "~0.10.0",
-    "grunt-contrib-jasmine":            "~0.8.1",
-    "grunt-template-jasmine-istanbul":  "~0.3.0",
+    "grunt": "~0.4.5",
+    "grunt-cli": "~0.1.13",
+    "grunt-codepainter": "~1.2.0",
+    "grunt-complexity": "~0.2.0",
+    "grunt-contrib-jasmine": "~0.8.1",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-template-jasmine-istanbul": "~0.3.0",
     "grunt-template-jasmine-requirejs": "~0.2.0",
-    "grunt-complexity":                 "~0.2.0",
-    "grunt-codepainter":                "~1.2.0"
+    "gulp-js-prettify": "^0.1.0"
   },
   "scripts": {
     "test": "./node_modules/grunt-cli/bin/grunt --verbose"
   },
   "dependencies": {
     "grunt-exec": "~0.4.6",
-    "coveralls":  "~2.11.2"
+    "coveralls": "~2.11.2"
   }
 }
