@@ -1,16 +1,60 @@
-describe('PAGE', function() {
+define(['ligermobile'], function() {
+  describe('Load the module', function() {
+    it('an object should appear', function() {
+      var lm = require('ligermobile');
+      expect(lm).not.toBe(null);
+      expect(lm).not.toBe(undefined);
+    });
+  });
+
+  describe('initialize', function() {
+    it('sets the page name', function() {
+      var lm = require('ligermobile');
+      spyOn(lm, 'bindEvents');
+
+      lm.initialize('page_example');
+
+      expect(lm.page).toBe('page_example');
+      expect(lm.bindEvents).toHaveBeenCalled();
+    });
+
+    it('gets the page\'s args', function() {
+      var lm = require('ligermobile');
+      var bridge = require('cordovabridge');
+      spyOn(bridge, 'getPageArgs').and.callFake(function(){
+        bridge.PAGE.gotPageArgs({example:"args"});
+      });
+      lm.page_example = function(){};
+      spyOn(lm, 'page_example');
+
+      lm.pageInit();
+
+      expect(lm.args).toEqual({example:"args"})
+      expect(bridge.getPageArgs).toHaveBeenCalled();
+      expect(lm.page_example).toHaveBeenCalled();
+      delete page_example;
+    });
+
+  });
+});
+
+
+////// -------- OLD --------
+
+
+xdescribe('PAGE', function() {
   describe("#initialize", function() {
     beforeEach(function() {
       PAGE.page = null;
     });
 
-    it("should set the page variable", function() {
+    xit("should set the page variable", function() {
       PAGE.initialize("hello");
 
       expect(PAGE.page).toEqual("hello");
     });
 
-    it("should call bindEvents", function() {
+    xit("should call bindEvents", function() {
       spyOn(PAGE, 'bindEvents');
       PAGE.initialize("hello");
       expect(PAGE.bindEvents).toHaveBeenCalled();
@@ -18,7 +62,7 @@ describe('PAGE', function() {
   });
 
   describe("#bindEvents", function() {
-    it("should add device ready listener", function() {
+    xit("should add device ready listener", function() {
       spyOn(document, 'addEventListener');
       PAGE.bindEvents();
 
@@ -27,7 +71,7 @@ describe('PAGE', function() {
   });
 
   describe("#onDeviceReady", function() {
-    it("should call pageInit", function() {
+    xit("should call pageInit", function() {
       spyOn(PAGE, 'pageInit');
       PAGE.onDeviceReady();
 
@@ -36,16 +80,16 @@ describe('PAGE', function() {
   });
 
   describe("#pageInit", function() {
-    it("should call pageInit", function() {
+    xit("should call pageInit", function() {
       spyOn(PAGE, 'startThePageMan');
-      PAGE.pageInit();
+      PAGE.pageInxit();
 
       expect(PAGE.startThePageMan).toHaveBeenCalled();
     });
   });
 
   describe("#startThePageMan", function() {
-    it("should call LIGER.getPageArgs", function() {
+    xit("should call LIGER.getPageArgs", function() {
       spyOn(LIGER, 'getPageArgs');
       PAGE.startThePageMan();
 
@@ -61,7 +105,7 @@ describe('PAGE', function() {
       PAGE.hello = function() {};
     });
 
-    it("should set the page args", function() {
+    xit("should set the page args", function() {
       PAGE.gotPageArgs({
         'foo': 'bar'
       });
@@ -71,7 +115,7 @@ describe('PAGE', function() {
       });
     });
 
-    it("should call common", function() {
+    xit("should call common", function() {
       spyOn(PAGE, 'common');
       PAGE.gotPageArgs({
         'foo': 'bar'
@@ -80,7 +124,7 @@ describe('PAGE', function() {
       expect(PAGE.common).toHaveBeenCalled();
     });
 
-    it("should call current PAGE.page", function() {
+    xit("should call current PAGE.page", function() {
       spyOn(PAGE, 'hello');
       PAGE.gotPageArgs({
         'foo': 'bar'
@@ -91,7 +135,7 @@ describe('PAGE', function() {
   });
 
   describe("#common", function() {
-    it("should call addToolbar", function() {
+    xit("should call addToolbar", function() {
       spyOn(PAGE, 'addToolbar');
       PAGE.common();
 
@@ -100,14 +144,14 @@ describe('PAGE', function() {
   });
 
   describe("#addToolbar", function() {
-    it("should not call LIGER.toolbar if PAGE.toolbarItems is null", function() {
+    xit("should not call LIGER.toolbar if PAGE.toolbarItems is null", function() {
       spyOn(LIGER, 'toolbar');
       PAGE.addToolbar();
 
       expect(LIGER.toolbar).not.toHaveBeenCalled();
     });
 
-    it("should call LIGER.toolbar if PAGE.toolbarItems", function() {
+    xit("should call LIGER.toolbar if PAGE.toolbarItems", function() {
       spyOn(LIGER, 'toolbar');
       PAGE.toolbarItems = [{}, {}];
       PAGE.addToolbar();
@@ -118,7 +162,7 @@ describe('PAGE', function() {
 
   describe("LIGER api", function() {
     describe("#openPage", function() {
-      it("should call LIGER.openPage", function() {
+      xit("should call LIGER.openPage", function() {
         spyOn(LIGER, 'openPage');
         PAGE.openPage('test', 'test', {
           'foo': 'bar'
@@ -135,7 +179,7 @@ describe('PAGE', function() {
     });
 
     describe("#closePage", function() {
-      it("should call LIGER.closePage", function() {
+      xit("should call LIGER.closePage", function() {
         spyOn(LIGER, 'closePage');
         PAGE.closePage();
 
@@ -144,7 +188,7 @@ describe('PAGE', function() {
     });
 
     describe("#closeToPage", function() {
-      it("should call LIGER.closeToPage", function() {
+      xit("should call LIGER.closeToPage", function() {
         spyOn(LIGER, 'closeToPage');
         PAGE.closeToPage('test');
 
@@ -153,7 +197,7 @@ describe('PAGE', function() {
     });
 
     describe("#updateParent", function() {
-      it("should call LIGER.updateParent", function() {
+      xit("should call LIGER.updateParent", function() {
         spyOn(LIGER, 'updateParent');
         PAGE.updateParent({
           'foo': 'bar'
@@ -166,7 +210,7 @@ describe('PAGE', function() {
     });
 
     describe("#updateParentPage", function() {
-      it("should call LIGER.updateParentPage", function() {
+      xit("should call LIGER.updateParentPage", function() {
         spyOn(LIGER, 'updateParentPage');
         PAGE.updateParentPage('hello', {
           'foo': 'bar'
@@ -179,7 +223,7 @@ describe('PAGE', function() {
     });
 
     describe("#openDialog", function() {
-      it("should call LIGER.openDialog", function() {
+      xit("should call LIGER.openDialog", function() {
         spyOn(LIGER, 'openDialog');
         PAGE.openDialog('hello', {
           'foo': 'bar'
@@ -196,7 +240,7 @@ describe('PAGE', function() {
     });
 
     describe("#openDialogWithTitle", function() {
-      it("should call LIGER.openDialogWithTitle", function() {
+      xit("should call LIGER.openDialogWithTitle", function() {
         spyOn(LIGER, 'openDialogWithTitle');
         PAGE.openDialogWithTitle('hello', 'hello', {
           'foo': 'bar'
@@ -213,7 +257,7 @@ describe('PAGE', function() {
     });
 
     describe("#closeDialog", function() {
-      it("should call LIGER.closeDialog", function() {
+      xit("should call LIGER.closeDialog", function() {
         spyOn(LIGER, 'closeDialog');
         PAGE.closeDialog({
           'foo': 'bar'
@@ -226,7 +270,7 @@ describe('PAGE', function() {
     });
 
     describe("#toolbar", function() {
-      it("should call LIGER.toolbar", function() {
+      xit("should call LIGER.toolbar", function() {
         spyOn(LIGER, 'toolbar');
         PAGE.toolbar(['test', 'test1', 'test2']);
 
@@ -237,7 +281,7 @@ describe('PAGE', function() {
 
   describe("empty callbacks", function() {
     describe("#closeDialogArguments", function() {
-      it("does nothing when called", function() {
+      xit("does nothing when called", function() {
         PAGE.closeDialogArguments({
           'foo': 'bar'
         });
@@ -245,7 +289,7 @@ describe('PAGE', function() {
     });
 
     describe("#childUpdates", function() {
-      it("does nothing when called", function() {
+      xit("does nothing when called", function() {
         PAGE.childUpdates({
           bar: 'baz'
         });
@@ -253,31 +297,31 @@ describe('PAGE', function() {
     });
 
     describe("#onPageAppear", function() {
-      it("does nothing when called", function() {
+      xit("does nothing when called", function() {
         PAGE.onPageAppear();
       });
     });
 
     describe("#pushNotificationTokenUpdated", function() {
-      it("does nothing when called", function() {
+      xit("does nothing when called", function() {
         PAGE.pushNotificationTokenUpdated('token', 'type', 'error');
       });
     });
 
     describe("#notificationArrived", function() {
-      it("does nothing when called", function() {
+      xit("does nothing when called", function() {
         PAGE.notificationArrived('payload', 'background');
       });
     });
 
     describe("#handleAppOpenURL", function() {
-      it("does nothing when called", function() {
+      xit("does nothing when called", function() {
         PAGE.handleAppOpenURL('url');
       });
     });
 
     describe("#headerButtonTapped", function() {
-      it("does nothing when called", function() {
+      xit("does nothing when called", function() {
         PAGE.headerButtonTapped("done");
       });
     });

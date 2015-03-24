@@ -1,5 +1,5 @@
 var iOS = /(iPad|iPhone|iPod)/g.test( navigator.userAgent );
-var cordova = iOS ? 'vendor/ios/cordova.js' : 'vendor/android/cordova.js';
+var cordova = iOS ? 'cordova-ios' : 'cordova-android';
 
 define([cordova], function() {
   var exec = cordova.require('cordova/exec');

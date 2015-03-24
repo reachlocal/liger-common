@@ -20,10 +20,6 @@ define(['./cordovabridge'], function() {
     },
 
     pageInit: function(id) {
-      this.startThePageMan();
-    },
-
-    startThePageMan: function() {
       bridge.getPageArgs();
     },
 

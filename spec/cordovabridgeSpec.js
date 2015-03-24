@@ -1,6 +1,12 @@
-describe('LIGER', function() {
+xdescribe('cordovabridge', function() {
+  xit('require', function() {
+    var lm = require('../../app/vendor/cordovabridge.js');
+  });
+});
+
+xdescribe('LIGER', function() {
   describe("#openPage", function() {
-    it("#opens a page", function() {
+    xit("#opens a page", function() {
       spyOn(cordova, 'exec');
       LIGER.openPage('test', 'test', {
         "foo": "bar"
@@ -15,7 +21,7 @@ describe('LIGER', function() {
       }]);
     });
 
-    it("#opens a page, with default options", function() {
+    xit("#opens a page, with default options", function() {
       spyOn(cordova, 'exec');
       LIGER.openPage('test', 'test', {
         "foo": "bar"
@@ -27,21 +33,21 @@ describe('LIGER', function() {
     });
   });
 
-  it("#closePage", function() {
+  xit("#closePage", function() {
     spyOn(cordova, 'exec');
     LIGER.closePage();
 
     expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "closePage", []);
   });
 
-  it("#closeToPage", function() {
+  xit("#closeToPage", function() {
     spyOn(cordova, 'exec');
     LIGER.closeToPage('test');
 
     expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "closePage", ['test']);
   });
 
-  it("#updateParent", function() {
+  xit("#updateParent", function() {
     spyOn(cordova, 'exec');
     LIGER.updateParent({
       'foo': 'bar'
@@ -52,7 +58,7 @@ describe('LIGER', function() {
     }]);
   });
 
-  it("#updateParentPage", function() {
+  xit("#updateParentPage", function() {
     spyOn(cordova, 'exec');
     LIGER.updateParentPage('test', {
       'foo': 'bar'
@@ -63,7 +69,7 @@ describe('LIGER', function() {
     }]);
   });
 
-  it("#childUpdates", function() {
+  xit("#childUpdates", function() {
     spyOn(PAGE, 'childUpdates');
     LIGER.childUpdates({
       'foo': 'bar'
@@ -73,7 +79,7 @@ describe('LIGER', function() {
     });
   });
 
-  it("#openPageArguments", function() {
+  xit("#openPageArguments", function() {
     beforeEach(function() {
       PAGE.args = null;
     });
@@ -87,14 +93,14 @@ describe('LIGER', function() {
   });
 
   describe("#getPageArgs", function() {
-    it("gets called", function() {
+    xit("gets called", function() {
       spyOn(cordova, 'exec');
       LIGER.getPageArgs();
 
       expect(cordova.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
     });
 
-    it("gets called and executes successfully", function() {
+    xit("gets called and executes successfully", function() {
       spyOn(PAGE, 'gotPageArgs');
       spyOn(cordova, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
         successCallback();
@@ -105,7 +111,7 @@ describe('LIGER', function() {
       expect(PAGE.gotPageArgs).toHaveBeenCalled();
     });
 
-    it("gets called and fails", function() {
+    xit("gets called and fails", function() {
       spyOn(cordova, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
         failCallback();
       });
@@ -116,7 +122,7 @@ describe('LIGER', function() {
   });
 
   describe("#openDialog", function() {
-    it("#opens a dialog", function() {
+    xit("#opens a dialog", function() {
       spyOn(cordova, 'exec');
       LIGER.openDialog('test', {
         'foo': 'bar'
@@ -131,7 +137,7 @@ describe('LIGER', function() {
       }]);
     });
 
-    it("#opens a dialog with default options", function() {
+    xit("#opens a dialog with default options", function() {
       spyOn(cordova, 'exec');
       LIGER.openDialog('test', {
         'foo': 'bar'
@@ -144,7 +150,7 @@ describe('LIGER', function() {
   });
 
   describe("#openDialogWithTitle", function() {
-    it("opens a dialog with a title", function() {
+    xit("opens a dialog with a title", function() {
       spyOn(cordova, 'exec');
       LIGER.openDialogWithTitle('test', 'test', {
         'foo': 'bar'
@@ -159,7 +165,7 @@ describe('LIGER', function() {
       }]);
     });
 
-    it("opens a dialog with title using the default options", function() {
+    xit("opens a dialog with title using the default options", function() {
       spyOn(cordova, 'exec');
       LIGER.openDialogWithTitle('test', 'test', {
         'foo': 'bar'
@@ -170,7 +176,7 @@ describe('LIGER', function() {
       }, {}]);
     });
   });
-  it("#closeDialog", function() {
+  xit("#closeDialog", function() {
     spyOn(cordova, 'exec');
     LIGER.closeDialog({
       'foo': 'bar'
@@ -181,7 +187,7 @@ describe('LIGER', function() {
     }]);
   });
 
-  it("#closeDialogArguments", function() {
+  xit("#closeDialogArguments", function() {
     spyOn(PAGE, 'closeDialogArguments');
     LIGER.closeDialogArguments({
       'foo': 'bar'
@@ -192,7 +198,7 @@ describe('LIGER', function() {
     });
   });
 
-  it("#toolbar", function() {
+  xit("#toolbar", function() {
     spyOn(cordova, 'exec');
     LIGER.toolbar(['test', 'test1', 'test2']);
 
