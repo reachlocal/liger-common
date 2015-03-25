@@ -1,210 +1,205 @@
-xdescribe('cordovabridge', function() {
-  xit('require', function() {
-    var lm = require('../../app/vendor/cordovabridge.js');
-  });
-});
+define(['cordovabridge'], function(bridge) {
+  describe('makes sure the bridge is ready', function() {
+    describe('#bindEvents', function() {
+      it('listens to device ready', function() {
+        spyOn(document, 'addEventListener');
 
-xdescribe('LIGER', function() {
-  describe("#openPage", function() {
-    xit("#opens a page", function() {
-      spyOn(cordova, 'exec');
-      LIGER.openPage('test', 'test', {
-        "foo": "bar"
-      }, {
-        "bar": "baz"
+        bridge.bindEvents();
+
+        expect(document.addEventListener).toHaveBeenCalledWith('deviceready', jasmine.anything(), jasmine.anything());
+      });
+    });
+
+    describe('#onDeviceReady', function() {
+      it('calls pageInit when the device is ready', function() {
+        spyOn(bridge.PAGE, 'pageInit');
+
+        bridge.onDeviceReady();
+
+        expect(bridge.PAGE.pageInit).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Bridge API', function() {
+    describe("#openPage", function() {
+      it("opens a page", function() {
+        spyOn(bridge, 'exec');
+
+        bridge.openPage('test', 'test', {
+          "foo": "bar"
+        }, {
+          "bar": "baz"
+        });
+
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', {
+          "foo": "bar"
+        }, {
+          "bar": "baz"
+        }]);
       });
 
-      expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', {
-        "foo": "bar"
-      }, {
-        "bar": "baz"
+      it("opens a page, with default options", function() {
+        spyOn(bridge, 'exec');
+
+        bridge.openPage('test', 'test', {
+          "foo": "bar"
+        });
+
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', {
+          "foo": "bar"
+        }, {}]);
+      });
+    });
+
+    it("#closePage", function() {
+      spyOn(bridge, 'exec');
+      bridge.closePage();
+      expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "closePage", []);
+    });
+
+    it("#closeToPage", function() {
+      spyOn(bridge, 'exec');
+      bridge.closeToPage('test');
+      expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "closeToPage", ['test']);
+    });
+
+    it("#updateParent", function() {
+      spyOn(bridge, 'exec');
+      bridge.updateParent({
+        'foo': 'bar'
+      });
+      expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "updateParent", [null, {
+        'foo': 'bar'
       }]);
     });
 
-    xit("#opens a page, with default options", function() {
-      spyOn(cordova, 'exec');
-      LIGER.openPage('test', 'test', {
-        "foo": "bar"
-      });
-
-      expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', {
-        "foo": "bar"
-      }, {}]);
-    });
-  });
-
-  xit("#closePage", function() {
-    spyOn(cordova, 'exec');
-    LIGER.closePage();
-
-    expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "closePage", []);
-  });
-
-  xit("#closeToPage", function() {
-    spyOn(cordova, 'exec');
-    LIGER.closeToPage('test');
-
-    expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "closePage", ['test']);
-  });
-
-  xit("#updateParent", function() {
-    spyOn(cordova, 'exec');
-    LIGER.updateParent({
-      'foo': 'bar'
-    });
-
-    expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "updateParent", [null, {
-      'foo': 'bar'
-    }]);
-  });
-
-  xit("#updateParentPage", function() {
-    spyOn(cordova, 'exec');
-    LIGER.updateParentPage('test', {
-      'foo': 'bar'
-    });
-
-    expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "updateParent", ['test', {
-      'foo': 'bar'
-    }]);
-  });
-
-  xit("#childUpdates", function() {
-    spyOn(PAGE, 'childUpdates');
-    LIGER.childUpdates({
-      'foo': 'bar'
-    });
-    expect(PAGE.childUpdates).toHaveBeenCalledWith({
-      'foo': 'bar'
-    });
-  });
-
-  xit("#openPageArguments", function() {
-    beforeEach(function() {
-      PAGE.args = null;
-    });
-
-    LIGER.openPageArguments({
-      'foo': 'bar'
-    });
-    expect(PAGE.args).toEqual({
-      'foo': 'bar'
-    });
-  });
-
-  describe("#getPageArgs", function() {
-    xit("gets called", function() {
-      spyOn(cordova, 'exec');
-      LIGER.getPageArgs();
-
-      expect(cordova.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
-    });
-
-    xit("gets called and executes successfully", function() {
-      spyOn(PAGE, 'gotPageArgs');
-      spyOn(cordova, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
-        successCallback();
-      });
-      LIGER.getPageArgs();
-
-      expect(cordova.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
-      expect(PAGE.gotPageArgs).toHaveBeenCalled();
-    });
-
-    xit("gets called and fails", function() {
-      spyOn(cordova, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
-        failCallback();
-      });
-      LIGER.getPageArgs();
-
-      expect(cordova.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
-    });
-  });
-
-  describe("#openDialog", function() {
-    xit("#opens a dialog", function() {
-      spyOn(cordova, 'exec');
-      LIGER.openDialog('test', {
+    it("#updateParentPage", function() {
+      spyOn(bridge, 'exec');
+      bridge.updateParentPage('test', {
         'foo': 'bar'
-      }, {
-        'bar': 'baz'
       });
 
-      expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialog", ['test', {
+      expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "updateParent", ['test', {
         'foo': 'bar'
-      }, {
-        'bar': 'baz'
       }]);
     });
 
-    xit("#opens a dialog with default options", function() {
-      spyOn(cordova, 'exec');
-      LIGER.openDialog('test', {
-        'foo': 'bar'
+    describe("#getPageArgs", function() {
+      it("gets called", function() {
+        spyOn(bridge, 'exec');
+        bridge.getPageArgs();
+
+        expect(bridge.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
       });
 
-      expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialog", ['test', {
-        'foo': 'bar'
-      }, {}]);
+      it("gets called and executes successfully", function() {
+        spyOn(bridge.PAGE, 'gotPageArgs');
+        spyOn(bridge, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
+          successCallback();
+        });
+        bridge.getPageArgs();
+
+        expect(bridge.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
+        expect(bridge.PAGE.gotPageArgs).toHaveBeenCalled();
+      });
+
+      it("gets called and fails", function() {
+        spyOn(bridge, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
+          failCallback();
+        });
+        bridge.getPageArgs();
+
+        expect(bridge.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
+      });
     });
-  });
 
-  describe("#openDialogWithTitle", function() {
-    xit("opens a dialog with a title", function() {
-      spyOn(cordova, 'exec');
-      LIGER.openDialogWithTitle('test', 'test', {
-        'foo': 'bar'
-      }, {
-        'bar': 'baz'
+    describe("#openDialog", function() {
+      it("#opens a dialog", function() {
+        spyOn(bridge, 'exec');
+        bridge.openDialog('test', {
+          'foo': 'bar'
+        }, {
+          'bar': 'baz'
+        });
+
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialog", ['test', {
+          'foo': 'bar'
+        }, {
+          'bar': 'baz'
+        }]);
       });
 
-      expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialogWithTitle", ['test', 'test', {
+      it("#opens a dialog with default options", function() {
+        spyOn(bridge, 'exec');
+        bridge.openDialog('test', {
+          'foo': 'bar'
+        });
+
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialog", ['test', {
+          'foo': 'bar'
+        }, {}]);
+      });
+    });
+
+    describe("#openDialogWithTitle", function() {
+      it("opens a dialog with a title", function() {
+        spyOn(bridge, 'exec');
+        bridge.openDialogWithTitle('test', 'test', {
+          'foo': 'bar'
+        }, {
+          'bar': 'baz'
+        });
+
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialogWithTitle", ['test', 'test', {
+          'foo': 'bar'
+        }, {
+          'bar': 'baz'
+        }]);
+      });
+
+      it("opens a dialog with title using the default options", function() {
+        spyOn(bridge, 'exec');
+        bridge.openDialogWithTitle('test', 'test', {
+          'foo': 'bar'
+        });
+
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialogWithTitle", ['test', 'test', {
+          'foo': 'bar'
+        }, {}]);
+      });
+    });
+
+    it("#closeDialog", function() {
+      spyOn(bridge, 'exec');
+      bridge.closeDialog({
         'foo': 'bar'
-      }, {
-        'bar': 'baz'
+      });
+
+      expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "closeDialog", [{
+        'foo': 'bar'
       }]);
     });
 
-    xit("opens a dialog with title using the default options", function() {
-      spyOn(cordova, 'exec');
-      LIGER.openDialogWithTitle('test', 'test', {
+    it("#closeDialogArguments", function() {
+      spyOn(bridge.PAGE, 'closeDialogArguments');
+      bridge.closeDialogArguments({
         'foo': 'bar'
       });
 
-      expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "openDialogWithTitle", ['test', 'test', {
+      expect(bridge.PAGE.closeDialogArguments).toHaveBeenCalledWith({
         'foo': 'bar'
-      }, {}]);
-    });
-  });
-  xit("#closeDialog", function() {
-    spyOn(cordova, 'exec');
-    LIGER.closeDialog({
-      'foo': 'bar'
+      });
     });
 
-    expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "closeDialog", [{
-      'foo': 'bar'
-    }]);
-  });
+    it("#toolbar", function() {
+      spyOn(bridge, 'exec');
+      bridge.toolbar(['test', 'test1', 'test2']);
 
-  xit("#closeDialogArguments", function() {
-    spyOn(PAGE, 'closeDialogArguments');
-    LIGER.closeDialogArguments({
-      'foo': 'bar'
+      expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "toolbar", [
+        ['test', 'test1', 'test2']
+      ]);
     });
 
-    expect(PAGE.closeDialogArguments).toHaveBeenCalledWith({
-      'foo': 'bar'
-    });
   });
-
-  xit("#toolbar", function() {
-    spyOn(cordova, 'exec');
-    LIGER.toolbar(['test', 'test1', 'test2']);
-
-    expect(cordova.exec).toHaveBeenCalledWith(null, null, "Liger", "toolbar", [
-      ['test', 'test1', 'test2']
-    ]);
-  });
-
 });

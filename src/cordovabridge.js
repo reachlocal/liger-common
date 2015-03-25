@@ -3,46 +3,48 @@ var cordova = iOS ? 'cordova-ios' : 'cordova-android';
 
 define([cordova], function() {
   var exec = cordova.require('cordova/exec');
-  return {
+  var cordovabridge = {
     PAGE: null,
+    exec:cordova.require('cordova/exec'),
 
+    bindEvents: function() {
+      document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+
+    onDeviceReady: function() {
+      cordovabridge.PAGE.pageInit('deviceready');
+    },
+
+    // Bridge
     openPage: function(title, page, args, options) {
       if (options === undefined) {
         options = {};
       }
 
-      exec(null, null, "Liger", "openPage", [title, page, args, options]);
+      this.exec(null, null, "Liger", "openPage", [title, page, args, options]);
     },
 
     closePage: function() {
-      exec(null, null, "Liger", "closePage", []);
+      this.exec(null, null, "Liger", "closePage", []);
     },
 
     closeToPage: function(page) {
-      exec(null, null, "Liger", "closePage", [page]);
+      this.exec(null, null, "Liger", "closeToPage", [page]);
     },
 
     updateParent: function(args) {
-      exec(null, null, "Liger", "updateParent", [null, args]);
+      this.exec(null, null, "Liger", "updateParent", [null, args]);
     },
 
     updateParentPage: function(page, args) {
-      exec(null, null, "Liger", "updateParent", [page, args]);
-    },
-
-    childUpdates: function(args) {
-      PAGE.childUpdates(args);
-    },
-
-    openPageArguments: function(args) {
-      PAGE.args = args;
+      this.exec(null, null, "Liger", "updateParent", [page, args]);
     },
 
     getPageArgs: function() {
-      var thePage = this.PAGE;
-      exec(
+      var page = cordovabridge.PAGE;
+      this.exec(
         function(args) {
-          thePage.gotPageArgs(args);
+          cordovabridge.PAGE.gotPageArgs(args);
         },
         function(error) {
           return false;
@@ -54,7 +56,7 @@ define([cordova], function() {
         options = {};
       }
 
-      exec(null, null, "Liger", "openDialog", [page, args, options]);
+      this.exec(null, null, "Liger", "openDialog", [page, args, options]);
     },
 
     openDialogWithTitle: function(title, page, args, options) {
@@ -62,19 +64,20 @@ define([cordova], function() {
         options = {};
       }
 
-      exec(null, null, "Liger", "openDialogWithTitle", [title, page, args, options]);
+      this.exec(null, null, "Liger", "openDialogWithTitle", [title, page, args, options]);
     },
 
     closeDialog: function(args) {
-      exec(null, null, "Liger", "closeDialog", [args]);
+      this.exec(null, null, "Liger", "closeDialog", [args]);
     },
 
     closeDialogArguments: function(args) {
-      PAGE.closeDialogArguments(args);
+      cordovabridge.PAGE.closeDialogArguments(args);
     },
 
     toolbar: function(items) {
-      exec(null, null, "Liger", "toolbar", [items]);
+      this.exec(null, null, "Liger", "toolbar", [items]);
     }
   };
+  return cordovabridge;
 });
