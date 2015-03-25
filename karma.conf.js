@@ -7,23 +7,36 @@ module.exports = function(config) {
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
+    // allowed values are clover, cobertura, html, json, json-summary, lcov, lcovonly, none, teamcity, text, text-summary
+    coverageReporter: {
+      reporters: [{
+        type: 'html'
+      }, {
+        type: 'text',
+      }]
+    },
+
 
     // frameworks to use
     frameworks: ['jasmine', 'requirejs'],
 
 
     // list of files / patterns to load in the browser
-    files: [
-        {pattern: 'src/**/*.js', included: false},
-        {pattern: 'spec/**/*Spec.js', included: false},
+    files: [{
+        pattern: 'src/**/*.js',
+        included: false
+      }, {
+        pattern: 'spec/**/*Spec.js',
+        included: false
+      },
 
-        'spec/spec-main.js',
+      'spec/spec-main.js',
     ],
 
 
     // list of files to exclude
     exclude: [
-        'src/main.js'
+      'src/main.js'
     ],
 
 
@@ -32,7 +45,7 @@ module.exports = function(config) {
     reporters: ['progress', 'coverage'],
 
     preprocessors: {
-      'src/**/*.js': 'coverage'
+      'src/*.js': 'coverage'
     },
 
     // web server port
