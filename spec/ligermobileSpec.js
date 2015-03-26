@@ -283,11 +283,10 @@ define(['ligermobile', 'cordovabridge'], function() {
       it('can be added', function() {
         var update = {test:'data'};
         var lm = require('ligermobile');
-        var test = { childUpdates:function(update) {}};
-        spyOn(test, 'childUpdates');
-        lm.addChildUpdates(test.childUpdates);
+        var spy = jasmine.createSpy('childUpdates');
+        lm.addChildUpdates(spy);
         PAGE.childUpdates(update);
-        expect(test.childUpdates).toHaveBeenCalledWith(update);
+        expect(spy).toHaveBeenCalledWith(update);
       });
     });
 
@@ -295,11 +294,10 @@ define(['ligermobile', 'cordovabridge'], function() {
       it('can be added', function() {
         var args = {test:'data'};
         var lm = require('ligermobile');
-        var test = { closeDialogArguments:function(args) {}};
-        spyOn(test, 'closeDialogArguments');
-        lm.addCloseDialogArguments(test.closeDialogArguments);
+        var spy = jasmine.createSpy('closeDialogArguments');
+        lm.addCloseDialogArguments(spy);
         PAGE.closeDialogArguments(args);
-        expect(test.closeDialogArguments).toHaveBeenCalledWith(args);
+        expect(spy).toHaveBeenCalledWith(args);
       });
     });
 
@@ -307,11 +305,10 @@ define(['ligermobile', 'cordovabridge'], function() {
       it('can be added', function() {
         var url = 'ligermobile://isGreat/yes';
         var lm = require('ligermobile');
-        var test = { handleAppOpenURL:function(url) {}};
-        spyOn(test, 'handleAppOpenURL');
-        lm.addHandleAppOpenURL(test.handleAppOpenURL);
+        var spy = jasmine.createSpy('handleAppOpenURL');
+        lm.addHandleAppOpenURL(spy);
         PAGE.handleAppOpenURL(url);
-        expect(test.handleAppOpenURL).toHaveBeenCalledWith(url);
+        expect(spy).toHaveBeenCalledWith(url);
       });
     });
 
@@ -319,11 +316,10 @@ define(['ligermobile', 'cordovabridge'], function() {
       it('can be added', function() {
         var button = 'done';
         var lm = require('ligermobile');
-        var test = { headerButtonTapped:function(button) {}};
-        spyOn(test, 'headerButtonTapped');
-        lm.addHeaderButtonTapped(test.headerButtonTapped);
+        var spy = jasmine.createSpy('headerButtonTapped');
+        lm.addHeaderButtonTapped(spy);
         PAGE.headerButtonTapped(button);
-        expect(test.headerButtonTapped).toHaveBeenCalledWith(button);
+        expect(spy).toHaveBeenCalledWith(button);
       });
     });
 
@@ -331,22 +327,20 @@ define(['ligermobile', 'cordovabridge'], function() {
       it('can be added', function() {
         var payload = {notification:'yes please'};
         var lm = require('ligermobile');
-        var test = { notificationArrived:function(payload, background) {}};
-        spyOn(test, 'notificationArrived');
-        lm.addNotificationArrived(test.notificationArrived);
+        var spy = jasmine.createSpy('notificationArrived');
+        lm.addNotificationArrived(spy);
         PAGE.notificationArrived(payload, false);
-        expect(test.notificationArrived).toHaveBeenCalledWith(payload, false);
+        expect(spy).toHaveBeenCalledWith(payload, false);
       });
     });
 
     describe('#addOnPageAppear', function() {
       it('can be added', function() {
         var lm = require('ligermobile');
-        var test = { pageAppear:function() {}};
-        spyOn(test, 'pageAppear');
-        lm.addOnPageAppear(test.pageAppear);
+        var spy = jasmine.createSpy('pageAppear');
+        lm.addOnPageAppear(spy);
         PAGE.onPageAppear();
-        expect(test.pageAppear).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
       });
     });
 
@@ -356,11 +350,10 @@ define(['ligermobile', 'cordovabridge'], function() {
         var type = 'test';
         var error = '';
         var lm = require('ligermobile');
-        var test = { pushNotificationTokenUpdated:function() {}};
-        spyOn(test, 'pushNotificationTokenUpdated');
-        lm.addPushNotificationTokenUpdated(test.pushNotificationTokenUpdated);
+        var spy = jasmine.createSpy('pushNotificationTokenUpdated');
+        lm.addPushNotificationTokenUpdated(spy);
         PAGE.pushNotificationTokenUpdated(token, type, error);
-        expect(test.pushNotificationTokenUpdated).toHaveBeenCalledWith(token, type, error);
+        expect(spy).toHaveBeenCalledWith(token, type, error);
       });
     });
 

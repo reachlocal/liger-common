@@ -4,7 +4,7 @@ define(['cordovabridge'], function(bridge) {
       it('listens to device ready', function() {
         spyOn(document, 'addEventListener');
 
-        bridge.bindEvents(function(){});
+        bridge.bindEvents(function() {});
 
         expect(document.addEventListener).toHaveBeenCalledWith('deviceready', jasmine.anything(), jasmine.anything());
       });
@@ -15,31 +15,27 @@ define(['cordovabridge'], function(bridge) {
   describe('Bridge API', function() {
     describe("#openPage", function() {
       it("opens a page", function() {
+        var args = {
+          "foo": "bar"
+        };
+        var options = {
+          "bar": "baz"
+        };
         spyOn(bridge, 'exec');
+        bridge.openPage('test', 'test', args, options);
 
-        bridge.openPage('test', 'test', {
-          "foo": "bar"
-        }, {
-          "bar": "baz"
-        });
-
-        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', {
-          "foo": "bar"
-        }, {
-          "bar": "baz"
-        }]);
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', args, options]);
       });
 
       it("opens a page, with default options", function() {
+        var args = {
+          "foo": "bar"
+        };
         spyOn(bridge, 'exec');
 
-        bridge.openPage('test', 'test', {
-          "foo": "bar"
-        });
+        bridge.openPage('test', 'test', args);
 
-        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', {
-          "foo": "bar"
-        }, {}]);
+        expect(bridge.exec).toHaveBeenCalledWith(null, null, "Liger", "openPage", ['test', 'test', args, {}]);
       });
     });
 
@@ -79,28 +75,27 @@ define(['cordovabridge'], function(bridge) {
     describe("#getPageArgs", function() {
       it("gets called", function() {
         spyOn(bridge, 'exec');
-        bridge.getPageArgs(function(args){});
+        bridge.getPageArgs(function(args) {});
 
         expect(bridge.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
       });
 
       it("gets called and executes successfully", function() {
-        var test = {gotPageArgs:function(args){}};
-        spyOn(test, 'gotPageArgs');
+        var spy = jasmine.createSpy('gotPageArgs');
         spyOn(bridge, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
           successCallback();
         });
-        bridge.getPageArgs(test.gotPageArgs);
+        bridge.getPageArgs(spy);
 
         expect(bridge.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
-        expect(test.gotPageArgs).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
       });
 
       it("gets called and fails", function() {
         spyOn(bridge, 'exec').and.callFake(function(successCallback, failCallback, service, action, actionArgs) {
           failCallback();
         });
-        bridge.getPageArgs(function(args){});
+        bridge.getPageArgs(function(args) {});
 
         expect(bridge.exec).toHaveBeenCalledWith(jasmine.any(Function), jasmine.any(Function), "Liger", "getPageArgs", []);
       });
@@ -194,79 +189,70 @@ define(['cordovabridge'], function(bridge) {
     });
 
   }); // Bridge API
+
   describe('callbacks', function() {
-      describe('#addChildUpdates', function() {
+    describe('#addChildUpdates', function() {
       it('can be added', function() {
-        var update = {test:'data'};
-        var test = { childUpdates:function(update) {}};
-        spyOn(test, 'childUpdates');
-        bridge.addChildUpdates(test.childUpdates);
+        var update = {
+          test: 'data'
+        };
+        var spy = jasmine.createSpy('childUpdates');
+        bridge.addChildUpdates(spy);
         PAGE.childUpdates(update);
-        expect(test.childUpdates).toHaveBeenCalledWith(update);
+        expect(spy).toHaveBeenCalledWith(update);
       });
     });
 
     describe('#addCloseDialogArguments', function() {
       it('can be added', function() {
-        var args = {test:'data'};
-        var test = { closeDialogArguments:function(args) {}};
-        spyOn(test, 'closeDialogArguments');
-        bridge.addCloseDialogArguments(test.closeDialogArguments);
+        var args = {
+          test: 'data'
+        };
+        var spy = jasmine.createSpy('closeDialogArguments');
+        bridge.addCloseDialogArguments(spy);
         PAGE.closeDialogArguments(args);
-        expect(test.closeDialogArguments).toHaveBeenCalledWith(args);
+        expect(spy).toHaveBeenCalledWith(args);
       });
     });
 
     describe('#addHandleAppOpenURL', function() {
       it('can be added', function() {
         var url = 'ligermobile://isGreat/yes';
-        var test = { handleAppOpenURL:function(args) {}};
-        spyOn(test, 'handleAppOpenURL');
-        bridge.addHandleAppOpenURL(test.handleAppOpenURL);
+        var spy = jasmine.createSpy('handleAppOpenURL');
+        bridge.addHandleAppOpenURL(spy);
         PAGE.handleAppOpenURL(url);
-        expect(test.handleAppOpenURL).toHaveBeenCalledWith(url);
+        expect(spy).toHaveBeenCalledWith(url);
       });
     });
 
     describe('#addHeaderButtonTapped', function() {
       it('can be added', function() {
         var button = 'done';
-        var test = { headerButtonTapped:function(button) {}};
-        spyOn(test, 'headerButtonTapped');
-        bridge.addHeaderButtonTapped(test.headerButtonTapped);
+        var spy = jasmine.createSpy('headerButtonTapped');
+        bridge.addHeaderButtonTapped(spy);
         PAGE.headerButtonTapped(button);
-        expect(test.headerButtonTapped).toHaveBeenCalledWith(button);
+        expect(spy).toHaveBeenCalledWith(button);
       });
     });
 
     describe('#addNotificationArrived', function() {
       it('can be added', function() {
-        var payload = {notification:'yes please'};
-        var test = { notificationArrived:function(payload, background) {}};
-        spyOn(test, 'notificationArrived');
-        bridge.addNotificationArrived(test.notificationArrived);
+        var payload = {
+          notification: 'yes please'
+        };
+        var spy = jasmine.createSpy('notificationArrived');
+        bridge.addNotificationArrived(spy);
         PAGE.notificationArrived(payload, false);
-        expect(test.notificationArrived).toHaveBeenCalledWith(payload, false);
+        expect(spy).toHaveBeenCalledWith(payload, false);
       });
     });
 
     describe('#addOnPageAppear', function() {
       it('can be added', function() {
-        var test = { pageAppear:function() {}};
-        spyOn(test, 'pageAppear');
-        bridge.addOnPageAppear(test.pageAppear);
+        var spy = jasmine.createSpy('pageAppear');
+        bridge.addOnPageAppear(spy);
         PAGE.onPageAppear();
-        expect(test.pageAppear).toHaveBeenCalled();
-      });
-    });
-
-    describe('#addCallback', function() {
-      it('adds a function', function() {
-        var test = { test:function(){} };
-        spyOn(test, 'test');
-        PAGE._addCallback('test', test.test);
-        PAGE._callCallback('test');
-        expect(test.test).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalled();
       });
     });
 
@@ -275,14 +261,24 @@ define(['cordovabridge'], function(bridge) {
         var token = '1234';
         var type = 'test';
         var error = '';
-        var test = { pushNotificationTokenUpdated:function() {}};
-        spyOn(test, 'pushNotificationTokenUpdated');
-        bridge.addPushNotificationTokenUpdated(test.pushNotificationTokenUpdated);
+        var spy = jasmine.createSpy('pushNotificationTokenUpdated');
+        bridge.addPushNotificationTokenUpdated(spy);
         PAGE.pushNotificationTokenUpdated(token, type, error);
-        expect(test.pushNotificationTokenUpdated).toHaveBeenCalledWith(token, type, error);
+        expect(spy).toHaveBeenCalledWith(token, type, error);
       });
     });
 
   }); // callbacks
+
+  describe('PAGE callback management', function() {
+    describe('#_addCallback', function() {
+      it('adds a function', function() {
+        var spy = jasmine.createSpy('test');
+        PAGE._addCallback('test', spy);
+        PAGE._callCallback('test');
+        expect(spy).toHaveBeenCalled();
+      });
+    });
+  });
 
 });
