@@ -16,9 +16,9 @@ define(['cordovabridge'], function() {
     },
 
     gotPageArgs: function(args) {
-      this.args = args;
-      this.common();
-      this[this.page]();
+      PAGE.args = args;
+      PAGE.common();
+      PAGE[PAGE.page]();
     },
 
     common: function() {
