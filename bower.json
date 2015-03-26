@@ -6,7 +6,7 @@
     "John Gustafsson <john.gustafsson.liger@reachlocal.com>"
   ],
   "description": "Ligermobile javascript",
-  "main": ["app/vendor/ligermobile.js", "app/vendor/cordovabridge.js", "app/vendor/ios/cordova.js", "app/vendor/ios/cordova_plugins.js", "app/vendor/android/cordova.js", "app/vendor/android/cordova_plugins.js"],
+  "main": ["src/ligermobile.js", "src/cordovabridge.js", "src/ios/cordova.js", "src/ios/cordova_plugins.js", "src/android/cordova.js", "src/android/cordova_plugins.js"],
   "keywords": [
     "ligermobile"
   ],
@@ -15,8 +15,6 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "test",
-    "tests",
     "spec"
   ]
 }

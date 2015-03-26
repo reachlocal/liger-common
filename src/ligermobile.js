@@ -1,4 +1,4 @@
-define(['./cordovabridge'], function() {
+define(['cordovabridge'], function() {
   var bridge = require('cordovabridge');
 
   var PAGE = {
@@ -8,22 +8,10 @@ define(['./cordovabridge'], function() {
 
     initialize: function(page) {
       this.page = page;
-      this.bindEvents();
-    },
-
-    bindEvents: function() {
-      document.addEventListener('deviceready', this.onDeviceReady, false);
-    },
-
-    onDeviceReady: function() {
-      PAGE.pageInit('deviceready');
+      bridge.bindEvents();
     },
 
     pageInit: function(id) {
-      this.startThePageMan();
-    },
-
-    startThePageMan: function() {
       bridge.getPageArgs();
     },
 
@@ -91,7 +79,6 @@ define(['./cordovabridge'], function() {
     onPageAppear: function() {},
     pushNotificationTokenUpdated: function(token, type, error) {}
   };
-
   bridge.PAGE = PAGE;
 
   return PAGE;
