@@ -35,7 +35,6 @@ define([cordova], function() {
     },
 
     getPageArgs: function(callback) {
-      var page = cordovabridge.PAGE;
       var error = function(error) {
         return false;
       };

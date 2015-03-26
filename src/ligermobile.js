@@ -8,11 +8,11 @@ define(['cordovabridge'], function() {
 
     initialize: function(page) {
       this.page = page;
-      bridge.bindEvents(this.pageInit);
+      bridge.bindEvents(PAGE.pageInit);
     },
 
     pageInit: function() {
-      bridge.getPageArgs(this.gotPageArgs);
+      bridge.getPageArgs(PAGE.gotPageArgs);
     },
 
     gotPageArgs: function(args) {
