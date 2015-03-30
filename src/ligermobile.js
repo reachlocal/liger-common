@@ -8,17 +8,17 @@ define(['cordovabridge'], function() {
 
     initialize: function(page) {
       this.page = page;
-      bridge.bindEvents();
+      bridge.bindEvents(PAGE.pageInit);
     },
 
-    pageInit: function(id) {
-      bridge.getPageArgs();
+    pageInit: function() {
+      bridge.getPageArgs(PAGE.gotPageArgs);
     },
 
     gotPageArgs: function(args) {
-      this.args = args;
-      this.common();
-      this[this.page]();
+      PAGE.args = args;
+      PAGE.common();
+      PAGE[PAGE.page]();
     },
 
     common: function() {
@@ -71,15 +71,34 @@ define(['cordovabridge'], function() {
 
     // Callbacks
 
-    childUpdates: function(args) {},
-    closeDialogArguments: function(args) {},
-    handleAppOpenURL: function(url) {},
-    headerButtonTapped: function(button) {},
-    notificationArrived: function(payload, background) {},
-    onPageAppear: function() {},
-    pushNotificationTokenUpdated: function(token, type, error) {}
+    addChildUpdates: function(childUpdate) {
+      bridge.addChildUpdates(childUpdate);
+    },
+
+    addHandleAppOpenURL: function(handleAppOpenURL) {
+      bridge.addHandleAppOpenURL(handleAppOpenURL);
+    },
+
+    addCloseDialogArguments: function(closeDialogArguments) {
+      bridge.addCloseDialogArguments(closeDialogArguments);
+    },
+
+    addHeaderButtonTapped: function(headerButtonTapped) {
+      bridge.addHeaderButtonTapped(headerButtonTapped);
+    },
+
+    addNotificationArrived: function(notificationArrived) {
+      bridge.addNotificationArrived(notificationArrived);
+    },
+
+    addOnPageAppear:function(pageAppear) {
+      bridge.addOnPageAppear(pageAppear);
+    },
+
+    addPushNotificationTokenUpdated:function(pushNotificationTokenUpdated) {
+      bridge.addPushNotificationTokenUpdated(pushNotificationTokenUpdated);
+    },
   };
-  bridge.PAGE = PAGE;
 
   return PAGE;
 });
