@@ -1,30 +1,11 @@
 var gulp = require('gulp');
-var karma = require('gulp-karma');
+var karma = require('karma').server;
 
-var testFiles = [
-  // 'client/todo.js',
-  // 'client/todo.util.js',
-  // 'client/todo.App.js',
-  'spec/**/*Spec.js'
-];
-
-gulp.task('test', function() {
-  // Be sure to return the stream
-  return gulp.src(testFiles)
-    .pipe(karma({
-      configFile: 'karma.conf.js',
-      action: 'run'
-    }))
-    .on('error', function(err) {
-      // Make sure failed tests cause gulp to exit non-zero
-      throw err;
-    });
+gulp.task('test', function(done) {
+	karma.start({
+		configFile: __dirname + '/karma.conf.js',
+		singleRun: true
+	}, done);
 });
 
-gulp.task('default', function() {
-  gulp.src(testFiles)
-    .pipe(karma({
-      configFile: 'karma.conf.js',
-      action: 'watch'
-    }));
-});
+gulp.task('default', ['test']);
